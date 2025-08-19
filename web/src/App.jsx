@@ -40,7 +40,7 @@ function App() {
         console.log('=== API Response Debug ===')
         console.log('Full response:', JSON.stringify(data, null, 2))
         console.log('Response type:', typeof data)
-        
+
         if (data.accounts && data.accounts.length > 0) {
           data.accounts.forEach((account, index) => {
             console.log(`=== Account ${index} Debug ===`)
@@ -50,7 +50,7 @@ function App() {
             console.log('current_code length:', account.current_code ? account.current_code.length : 'undefined')
             console.log('current_code as string:', String(account.current_code))
             console.log('current_code repr:', JSON.stringify(account.current_code))
-            
+
             // Проверим каждый символ
             if (account.current_code) {
               const codeStr = String(account.current_code)
@@ -61,7 +61,7 @@ function App() {
             }
           })
         }
-        
+
         console.log('Setting result state...')
         setResult(data)
         console.log('Result state set successfully')
@@ -122,16 +122,16 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <QrCode className="w-8 h-8 text-blue-600 mr-2" />
-            <h1 className="text-3xl font-bold text-gray-900">TOTP QR Decoder</h1>
+            <QrCode className="w-8 h-8 text-blue-400 mr-2" />
+            <h1 className="text-3xl font-bold text-white">TOTP QR Decoder</h1>
           </div>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Перетащите изображение с QR-кодом или вставьте его из буфера обмена (Ctrl+V) для декодирования TOTP токенов
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Drag and drop a QR code image or paste it from clipboard (Ctrl+V) to decode TOTP tokens
           </p>
         </div>
 
@@ -151,17 +151,17 @@ function App() {
                 'w-12 h-12 mb-4 transition-colors',
                 isDragActive ? 'text-blue-500' : 'text-gray-400'
               )} />
-              <p className="text-lg font-medium text-gray-700 mb-2">
-                {isDragActive ? 'Отпустите файл здесь' : 'Перетащите изображение сюда'}
+              <p className="text-lg font-medium text-gray-200 mb-2">
+                {isDragActive ? 'Drop the file here' : 'Drag image here'}
               </p>
-              <p className="text-sm text-gray-500 mb-4">
-                или нажмите для выбора файла
+              <p className="text-sm text-gray-400 mb-4">
+                or click to select a file
               </p>
-              <p className="text-xs text-gray-400">
-                Поддерживаются: PNG, JPG, JPEG, GIF, BMP, WebP
+              <p className="text-xs text-gray-500">
+                Supported: PNG, JPG, JPEG, GIF, BMP, WebP
               </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Также можно вставить изображение из буфера обмена (Ctrl+V)
+              <p className="text-xs text-gray-500 mt-1">
+                You can also paste image from clipboard (Ctrl+V)
               </p>
             </div>
           </div>
@@ -173,42 +173,42 @@ function App() {
             <div className="flex items-center mb-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
-            <p className="text-gray-600">Обрабатываем QR-код...</p>
+            <p className="text-gray-300">Processing QR code...</p>
           </div>
         )}
 
         {/* Error */}
         {error && (
-          <div className="card border-red-200 bg-red-50 animate-slide-up">
+          <div className="card border-red-600 bg-red-900/20 animate-slide-up">
             <div className="flex items-center mb-2">
-              <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-              <h3 className="font-medium text-red-800">Ошибка</h3>
+              <AlertCircle className="w-5 h-5 text-red-400 mr-2" />
+              <h3 className="font-medium text-red-300">Error</h3>
             </div>
-            <p className="text-red-700">{error}</p>
+            <p className="text-red-200">{error}</p>
           </div>
         )}
 
         {/* Results */}
         {result && result.accounts && result.accounts.length > 0 && (
           <div className="card animate-slide-up">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-              Результаты декодирования ({result.qr_type})
+            <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
+              Decoding Results ({result.qr_type})
             </h2>
 
             {result.accounts.map((account, index) => (
-              <div key={index} className="card border-green-200 bg-green-50">
+              <div key={index} className="card border-green-600 bg-green-900/20">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
+                    <CheckCircle className="w-5 h-5 text-green-400 mr-2 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-green-800">
+                      <h3 className="font-semibold text-green-300">
                         {account.issuer || 'Unknown Service'}
                       </h3>
-                      <p className="text-green-700">{account.account}</p>
+                      <p className="text-green-200">{account.account}</p>
                     </div>
                   </div>
-                  <div className="flex items-center text-green-600">
+                  <div className="flex items-center text-green-400">
                     <Clock className="w-4 h-4 mr-1" />
                     <span className="text-sm font-mono">
                       {account.period || 30}s
@@ -218,20 +218,20 @@ function App() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
                       TOTP Code
                     </label>
                     <div className="flex items-center space-x-2">
-                      <code className="flex-1 bg-white px-3 py-2 rounded border text-lg font-mono text-center tracking-wider">
+                      <code className="flex-1 bg-gray-800 border border-gray-600 px-3 py-2 rounded text-lg font-mono text-center tracking-wider text-white">
                         {account.current_code}
                       </code>
                       <button
                         onClick={() => copyToClipboard(account.current_code, `code-${index}`)}
-                        className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                        className="p-2 text-gray-400 hover:text-gray-200 transition-colors"
                         title="Copy code"
                       >
                         {copiedIndex === `code-${index}` ? (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <CheckCircle className="w-4 h-4 text-green-400" />
                         ) : (
                           <Copy className="w-4 h-4" />
                         )}
@@ -240,10 +240,10 @@ function App() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
                       Algorithm / Digits
                     </label>
-                    <div className="bg-white px-3 py-2 rounded border text-sm">
+                    <div className="bg-gray-800 border border-gray-600 px-3 py-2 rounded text-sm text-white">
                       {account.algorithm || 'SHA1'} / {account.digits || 6} digits
                     </div>
                   </div>
@@ -251,20 +251,20 @@ function App() {
 
                 {account.otpauth_url && (
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
                       OTP Auth URL
                     </label>
                     <div className="flex items-center space-x-2">
-                      <code className="flex-1 bg-white px-3 py-2 rounded border text-xs break-all">
+                      <code className="flex-1 bg-gray-800 border border-gray-600 px-3 py-2 rounded text-xs break-all text-white">
                         {account.otpauth_url}
                       </code>
                       <button
                         onClick={() => copyToClipboard(account.otpauth_url, `url-${index}`)}
-                        className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                        className="p-2 text-gray-400 hover:text-gray-200 transition-colors"
                         title="Copy URL"
                       >
                         {copiedIndex === `url-${index}` ? (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <CheckCircle className="w-4 h-4 text-green-400" />
                         ) : (
                           <Copy className="w-4 h-4" />
                         )}
@@ -276,6 +276,21 @@ function App() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Footer */}
+      <div className="text-center mt-12 pt-8 border-t border-gray-700">
+        <p className="text-gray-400 text-sm">
+          Made by {'VizzleTF '}
+          <a
+            href="https://github.com/VizzleTF/TOTP_decoder"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 transition-colors underline"
+          >
+            OpenSource
+          </a>
+        </p>
       </div>
     </div>
   )

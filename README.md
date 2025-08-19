@@ -2,6 +2,12 @@
 
 A comprehensive solution for decoding TOTP (Time-based One-Time Password) QR codes from images, available both as a Python command-line tool and a modern web application.
 
+## 🚀 Try it Online
+
+**Live Demo**: [https://totp-decoder.vercel.app/](https://totp-decoder.vercel.app/)
+
+No installation required! Simply visit the link above to start decoding TOTP QR codes directly in your browser.
+
 ## Features
 
 ### Core Features

@@ -1,13 +1,27 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TOTP QR Decoder</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOTP QR Decoder</title>
+  <script>
+    // Detect browser language and set html lang attribute
+    const userLang = navigator.language || navigator.userLanguage;
+    const isRussian = userLang.startsWith('ru');
+    document.documentElement.lang = isRussian ? 'ru' : 'en';
+
+    // Update title based on language
+    if (isRussian) {
+      document.title = 'TOTP QR Декодер';
+    }
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>
