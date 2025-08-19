@@ -155,8 +155,14 @@ class TOTPDecoderMigration:
     def generate_totp_code(self, secret: str, algorithm: str = 'SHA1', digits: int = 6, period: int = 30) -> str:
         """Генерирует текущий TOTP код"""
         try:
-            totp = pyotp.TOTP(secret, algorithm=algorithm, digits=digits, interval=period)
-            return totp.now()
+            totp = pyotp.TOTP(
+                secret,
+                digits=digits,
+                interval=period
+            )
+            code = totp.now()
+            # Убеждаемся, что код имеет правильную длину с ведущими нулями
+            return str(code).zfill(digits)
         except Exception as e:
             logger.error(f"Ошибка генерации TOTP: {e}")
             return "ERROR"
@@ -258,7 +264,7 @@ class handler(BaseHTTPRequestHandler):
                                             int(account.get('digits', 6)),
                                             int(account.get('period', 30))
                                         )
-                                        account['current_totp'] = totp_code
+                                        account['current_code'] = totp_code
                                         
                                         # Генерируем otpauth URL
                                         label = f"{account.get('issuer', '')}:{account.get('account', '')}".strip(':')

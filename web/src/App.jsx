@@ -18,9 +18,15 @@ function App() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await fetch('/api/decode', {
+      const response = await fetch('http://localhost:8000/decode?v=' + Date.now(), {
         method: 'POST',
         body: formData,
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       })
 
       const data = await response.json()
@@ -30,7 +36,35 @@ function App() {
       }
 
       if (data.success) {
+        // Детальная отладочная информация
+        console.log('=== API Response Debug ===')
+        console.log('Full response:', JSON.stringify(data, null, 2))
+        console.log('Response type:', typeof data)
+        
+        if (data.accounts && data.accounts.length > 0) {
+          data.accounts.forEach((account, index) => {
+            console.log(`=== Account ${index} Debug ===`)
+            console.log('Full account object:', JSON.stringify(account, null, 2))
+            console.log('current_code value:', account.current_code)
+            console.log('current_code type:', typeof account.current_code)
+            console.log('current_code length:', account.current_code ? account.current_code.length : 'undefined')
+            console.log('current_code as string:', String(account.current_code))
+            console.log('current_code repr:', JSON.stringify(account.current_code))
+            
+            // Проверим каждый символ
+            if (account.current_code) {
+              const codeStr = String(account.current_code)
+              console.log('Character by character:')
+              for (let i = 0; i < codeStr.length; i++) {
+                console.log(`  [${i}]: '${codeStr[i]}' (code: ${codeStr.charCodeAt(i)})`)
+              }
+            }
+          })
+        }
+        
+        console.log('Setting result state...')
         setResult(data)
+        console.log('Result state set successfully')
       } else {
         throw new Error(data.error || 'Failed to decode QR code')
       }
