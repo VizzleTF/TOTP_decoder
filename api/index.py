@@ -1,6 +1,5 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from http.server import BaseHTTPRequestHandler
+import json
 import cv2
 import numpy as np
 import pyotp
@@ -11,248 +10,326 @@ import os
 from typing import List, Dict, Optional, Tuple
 import hashlib
 import OtpMigration_pb2
+import logging
+import traceback
 
-app = FastAPI(title="TOTP QR Decoder API", version="1.0.0")
-
-# CORS настройки
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # В продакшене укажите конкретные домены
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class TOTPDecoderMigration:
-    """TOTP QR Code Decoder with migration support"""
+    """Класс для декодирования TOTP QR-кодов и миграционных URL"""
     
     def __init__(self):
-        self.qr_detector = cv2.QRCodeDetector()
+        pass
     
     def load_image_from_bytes(self, image_bytes: bytes) -> Optional[cv2.Mat]:
         """Загружает изображение из байтов"""
-        nparr = np.frombuffer(image_bytes, np.uint8)
-        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        if image is None:
-            raise ValueError("Не удалось загрузить изображение")
-        return image
+        try:
+            nparr = np.frombuffer(image_bytes, np.uint8)
+            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            return image
+        except Exception as e:
+            logger.error(f"Ошибка загрузки изображения: {e}")
+            return None
     
     def decode_qr_code(self, image: cv2.Mat) -> Optional[str]:
-        """Декодирует QR-код из изображения с помощью OpenCV"""
-        # Преобразуем в оттенки серого для лучшего распознавания
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        
-        # Применяем адаптивную бинаризацию
-        binary = cv2.adaptiveThreshold(
-            gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
-        )
-        
-        # Пробуем декодировать с разными изображениями
-        for img in [gray, binary, image]:
-            data, points, _ = self.qr_detector.detectAndDecode(img)
+        """Декодирует QR-код из изображения"""
+        try:
+            detector = cv2.QRCodeDetector()
+            data, vertices_array, binary_qrcode = detector.detectAndDecode(image)
+            
             if data:
                 return data
-        
-        return None
+            
+            # Попробуем с разными предобработками
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            data, _, _ = detector.detectAndDecode(gray)
+            if data:
+                return data
+            
+            # Попробуем с бинаризацией
+            _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            data, _, _ = detector.detectAndDecode(binary)
+            if data:
+                return data
+                
+            return None
+        except Exception as e:
+            logger.error(f"Ошибка декодирования QR-кода: {e}")
+            return None
     
     def parse_otpauth_url(self, url: str) -> Dict[str, str]:
-        """Парсит стандартный otpauth:// URL"""
-        parsed = urllib.parse.urlparse(url)
-        
-        if parsed.scheme != 'otpauth' or parsed.netloc != 'totp':
-            raise ValueError("Неверный формат otpauth URL")
-        
-        # Извлекаем параметры из query string
-        params = urllib.parse.parse_qs(parsed.query)
-        
-        # Извлекаем label (issuer:account)
-        label = urllib.parse.unquote(parsed.path.lstrip('/'))
-        
-        # Разделяем issuer и account
-        if ':' in label:
-            issuer, account = label.split(':', 1)
-        else:
+        """Парсит otpauth:// URL"""
+        try:
+            if not url.startswith('otpauth://'):
+                return {}
+            
+            parsed = urllib.parse.urlparse(url)
+            params = urllib.parse.parse_qs(parsed.query)
+            
+            # Извлекаем параметры
+            secret = params.get('secret', [''])[0]
             issuer = params.get('issuer', [''])[0]
-            account = label
-        
-        return {
-            'issuer': issuer,
-            'account': account,
-            'secret': params.get('secret', [''])[0],
-            'algorithm': params.get('algorithm', ['SHA1'])[0],
-            'digits': int(params.get('digits', ['6'])[0]),
-            'period': int(params.get('period', ['30'])[0])
-        }
+            algorithm = params.get('algorithm', ['SHA1'])[0]
+            digits = int(params.get('digits', ['6'])[0])
+            period = int(params.get('period', ['30'])[0])
+            
+            # Извлекаем label из пути
+            label = parsed.path.lstrip('/')
+            if ':' in label:
+                issuer_from_label, account = label.split(':', 1)
+                if not issuer:
+                    issuer = issuer_from_label
+            else:
+                account = label
+            
+            return {
+                'secret': secret,
+                'issuer': issuer,
+                'account': account,
+                'algorithm': algorithm,
+                'digits': str(digits),
+                'period': str(period),
+                'type': 'totp'
+            }
+        except Exception as e:
+            logger.error(f"Ошибка парсинга otpauth URL: {e}")
+            return {}
     
     def parse_migration_url(self, url: str) -> List[Dict[str, str]]:
         """Парсит Google Authenticator migration URL"""
-        parsed = urllib.parse.urlparse(url)
-        
-        if not (parsed.scheme == 'otpauth-migration' and parsed.netloc == 'offline'):
-            raise ValueError("Неверный формат migration URL")
-        
-        # Извлекаем data параметр
-        params = urllib.parse.parse_qs(parsed.query)
-        data_param = params.get('data', [''])[0]
-        
-        if not data_param:
-            raise ValueError("Отсутствует data параметр в migration URL")
-        
         try:
+            if not url.startswith('otpauth-migration://'):
+                return []
+            
+            parsed = urllib.parse.urlparse(url)
+            params = urllib.parse.parse_qs(parsed.query)
+            data_param = params.get('data', [''])[0]
+            
+            if not data_param:
+                return []
+            
             # Декодируем base64
-            decoded_data = base64.b64decode(data_param)
+            try:
+                decoded_data = base64.b64decode(data_param)
+            except Exception as e:
+                logger.error(f"Ошибка декодирования base64: {e}")
+                return []
             
             # Парсим protobuf
-            migration_payload = OtpMigration_pb2.MigrationPayload()
-            migration_payload.ParseFromString(decoded_data)
-            
-            accounts = []
-            for otp_param in migration_payload.otp_parameters:
-                # Конвертируем алгоритм
-                algorithm_map = {
-                    1: 'SHA1',
-                    2: 'SHA256',
-                    3: 'SHA512',
-                    4: 'MD5'
-                }
+            try:
+                migration_payload = OtpMigration_pb2.MigrationPayload()
+                migration_payload.ParseFromString(decoded_data)
                 
-                # Конвертируем тип (должен быть TOTP)
-                if otp_param.type != 2:  # 2 = TOTP
-                    continue
+                accounts = []
+                for otp_param in migration_payload.otp_parameters:
+                    account = {
+                        'secret': base64.b32encode(otp_param.secret).decode('utf-8'),
+                        'account': otp_param.name,
+                        'issuer': otp_param.issuer,
+                        'algorithm': self._get_algorithm_name(otp_param.algorithm),
+                        'digits': str(otp_param.digits),
+                        'type': self._get_type_name(otp_param.type)
+                    }
+                    accounts.append(account)
                 
-                accounts.append({
-                    'issuer': otp_param.issuer,
-                    'account': otp_param.name,
-                    'secret': base64.b32encode(otp_param.secret).decode('utf-8'),
-                    'algorithm': algorithm_map.get(otp_param.algorithm, 'SHA1'),
-                    'digits': otp_param.digits if otp_param.digits else 6,
-                    'period': 30  # Google Authenticator всегда использует 30 секунд
-                })
-            
-            return accounts
-            
+                return accounts
+            except Exception as e:
+                logger.error(f"Ошибка парсинга protobuf: {e}")
+                return []
         except Exception as e:
-            raise ValueError(f"Ошибка при парсинге migration данных: {e}")
+            logger.error(f"Ошибка парсинга migration URL: {e}")
+            return []
+    
+    def _get_algorithm_name(self, algorithm_enum: int) -> str:
+        """Преобразует enum алгоритма в строку"""
+        algorithms = {0: 'SHA1', 1: 'SHA1', 2: 'SHA256', 3: 'SHA512'}
+        return algorithms.get(algorithm_enum, 'SHA1')
+    
+    def _get_type_name(self, type_enum: int) -> str:
+        """Преобразует enum типа в строку"""
+        types = {0: 'hotp', 1: 'totp', 2: 'totp'}
+        return types.get(type_enum, 'totp')
     
     def generate_totp_code(self, secret: str, algorithm: str = 'SHA1', digits: int = 6, period: int = 30) -> str:
         """Генерирует текущий TOTP код"""
         try:
-            # Маппинг алгоритмов
-            algorithm_map = {
-                'SHA1': hashlib.sha1,
-                'SHA256': hashlib.sha256,
-                'SHA512': hashlib.sha512,
-                'MD5': hashlib.md5
-            }
-            
-            digest_func = algorithm_map.get(algorithm.upper(), hashlib.sha1)
-            
-            totp = pyotp.TOTP(
-                secret,
-                digest=digest_func,
-                digits=digits,
-                interval=period
-            )
+            totp = pyotp.TOTP(secret, algorithm=algorithm, digits=digits, interval=period)
             return totp.now()
         except Exception as e:
+            logger.error(f"Ошибка генерации TOTP: {e}")
             return "ERROR"
     
     def process_image_bytes(self, image_bytes: bytes) -> Tuple[str, List[Dict[str, str]]]:
-        """Обрабатывает изображение из байтов и извлекает TOTP информацию"""
-        # Загружаем изображение
-        image = self.load_image_from_bytes(image_bytes)
-        
-        # Декодируем QR-код
-        qr_data = self.decode_qr_code(image)
-        if not qr_data:
-            raise ValueError("QR-код не найден в изображении")
-        
-        # Определяем тип QR-кода и парсим
-        if qr_data.startswith('otpauth://totp/'):
-            # Стандартный TOTP QR-код
-            account_info = self.parse_otpauth_url(qr_data)
-            return 'standard', [account_info]
-        elif qr_data.startswith('otpauth-migration://offline?data='):
-            # Google Authenticator migration QR-код
-            accounts = self.parse_migration_url(qr_data)
-            return 'migration', accounts
-        else:
-            raise ValueError(f"Неподдерживаемый формат QR-кода: {qr_data[:50]}...")
-    
-    def process_image(self, image_path: str) -> Tuple[str, List[Dict[str, str]]]:
-        """Обрабатывает изображение из файла"""
-        with open(image_path, 'rb') as f:
-            image_bytes = f.read()
-        return self.process_image_bytes(image_bytes)
+        """Обрабатывает изображение из байтов"""
+        try:
+            # Загружаем изображение
+            image = self.load_image_from_bytes(image_bytes)
+            if image is None:
+                return "Не удалось загрузить изображение", []
+            
+            # Декодируем QR-код
+            qr_data = self.decode_qr_code(image)
+            if not qr_data:
+                return "QR-код не найден или не может быть декодирован", []
+            
+            # Определяем тип URL и парсим
+            if qr_data.startswith('otpauth-migration://'):
+                accounts = self.parse_migration_url(qr_data)
+                if not accounts:
+                    return "Не удалось распарсить migration URL", []
+                return "success", accounts
+            elif qr_data.startswith('otpauth://'):
+                account = self.parse_otpauth_url(qr_data)
+                if not account:
+                    return "Не удалось распарсить otpauth URL", []
+                return "success", [account]
+            else:
+                return f"Неподдерживаемый тип QR-кода: {qr_data[:50]}...", []
+        except Exception as e:
+            logger.error(f"Ошибка обработки изображения: {e}")
+            return f"Ошибка обработки: {str(e)}", []
 
-# Инициализация декодера
+# Создаем экземпляр декодера
 decoder = TOTPDecoderMigration()
 
-@app.get("/api/health")
-async def health_check():
-    """Проверка состояния API"""
-    return {"status": "healthy"}
-
-@app.post("/api/decode")
-async def decode_qr_code(file: UploadFile = File(...)):
-    """Декодирование QR кода из загруженного изображения"""
-    try:
-        # Проверка типа файла
-        if not file.content_type or not file.content_type.startswith('image/'):
-            raise HTTPException(status_code=400, detail="Файл должен быть изображением")
-        
-        # Проверка размера файла (максимум 10MB)
-        contents = await file.read()
-        if len(contents) > 10 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="Размер файла не должен превышать 10MB")
-        
-        # Обработка изображения напрямую из байтов
-        qr_type, accounts = decoder.process_image_bytes(contents)
-        
-        # Генерация TOTP кодов и OTP Auth URLs для каждого аккаунта
-        for account in accounts:
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/api/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            response = {"status": "ok", "message": "TOTP Decoder API is running"}
+            self.wfile.write(json.dumps(response).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def do_POST(self):
+        if self.path == '/api/decode':
             try:
-                # Генерация текущего TOTP кода
-                current_code = decoder.generate_totp_code(
-                    account['secret'],
-                    account.get('algorithm', 'SHA1'),
-                    account.get('digits', 6),
-                    account.get('period', 30)
-                )
-                account['current_code'] = current_code
+                logger.info("Получен POST запрос на /api/decode")
+                
+                # Читаем данные
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                
+                logger.info(f"Размер полученных данных: {len(post_data)} байт")
+                
+                # Простая обработка multipart/form-data
+                boundary = None
+                content_type = self.headers.get('Content-Type', '')
+                if 'boundary=' in content_type:
+                    boundary = content_type.split('boundary=')[1].encode()
+                
+                if boundary:
+                    # Ищем файл в multipart данных
+                    parts = post_data.split(b'--' + boundary)
+                    file_data = None
+                    
+                    for part in parts:
+                        if b'Content-Disposition: form-data' in part and b'filename=' in part:
+                            # Находим начало файла
+                            header_end = part.find(b'\r\n\r\n')
+                            if header_end != -1:
+                                file_data = part[header_end + 4:]
+                                # Убираем завершающий \r\n
+                                if file_data.endswith(b'\r\n'):
+                                    file_data = file_data[:-2]
+                                break
+                    
+                    if file_data:
+                        logger.info(f"Найден файл размером: {len(file_data)} байт")
+                        
+                        # Обрабатываем изображение
+                        status, accounts = decoder.process_image_bytes(file_data)
+                        
+                        if status == "success":
+                            # Генерируем TOTP коды и otpauth URL
+                            for account in accounts:
+                                if account.get('secret'):
+                                    try:
+                                        # Генерируем текущий TOTP код
+                                        totp_code = decoder.generate_totp_code(
+                                            account['secret'],
+                                            account.get('algorithm', 'SHA1'),
+                                            int(account.get('digits', 6)),
+                                            int(account.get('period', 30))
+                                        )
+                                        account['current_totp'] = totp_code
+                                        
+                                        # Генерируем otpauth URL
+                                        label = f"{account.get('issuer', '')}:{account.get('account', '')}".strip(':')
+                                        params = {
+                                            'secret': account['secret'],
+                                            'issuer': account.get('issuer', ''),
+                                            'algorithm': account.get('algorithm', 'SHA1'),
+                                            'digits': account.get('digits', '6'),
+                                            'period': account.get('period', '30')
+                                        }
+                                        
+                                        # Удаляем пустые параметры
+                                        params = {k: v for k, v in params.items() if v}
+                                        
+                                        query_string = urllib.parse.urlencode(params)
+                                        otpauth_url = f"otpauth://totp/{urllib.parse.quote(label)}?{query_string}"
+                                        account['otpauth_url'] = otpauth_url
+                                    except Exception as e:
+                                        account['otpauth_url'] = "ERROR"
+                            
+                            response = {
+                                "success": True,
+                                "message": "QR-код успешно декодирован",
+                                "accounts": accounts
+                            }
+                        else:
+                            response = {
+                                "success": False,
+                                "message": status,
+                                "accounts": []
+                            }
+                    else:
+                        response = {
+                            "success": False,
+                            "message": "Файл не найден в запросе",
+                            "accounts": []
+                        }
+                else:
+                    response = {
+                        "success": False,
+                        "message": "Неверный Content-Type",
+                        "accounts": []
+                    }
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps(response).encode())
+                
             except Exception as e:
-                account['current_code'] = "ERROR"
-            
-            try:
-                # Генерация OTP Auth URL
-                label = f"{account.get('issuer', '')}:{account.get('account', '')}".strip(':')
-                params = {
-                    'secret': account['secret'],
-                    'issuer': account.get('issuer', ''),
-                    'algorithm': account.get('algorithm', 'SHA1'),
-                    'digits': str(account.get('digits', 6)),
-                    'period': str(account.get('period', 30))
+                logger.error(f"Ошибка обработки POST запроса: {e}")
+                logger.error(traceback.format_exc())
+                
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                error_response = {
+                    "success": False,
+                    "message": f"Ошибка сервера: {str(e)}",
+                    "accounts": []
                 }
-                
-                # Удаляем пустые параметры
-                params = {k: v for k, v in params.items() if v}
-                
-                query_string = urllib.parse.urlencode(params)
-                otpauth_url = f"otpauth://totp/{urllib.parse.quote(label)}?{query_string}"
-                account['otpauth_url'] = otpauth_url
-            except Exception as e:
-                account['otpauth_url'] = "ERROR"
-        
-        return JSONResponse(content={
-            "success": True,
-            "qr_type": qr_type,
-            "accounts": accounts
-        })
-                
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка обработки: {str(e)}")
-
-# Для Vercel
-handler = app
+                self.wfile.write(json.dumps(error_response).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()

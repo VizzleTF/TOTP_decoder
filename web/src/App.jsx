@@ -161,7 +161,7 @@ function App() {
               <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
               Результаты декодирования ({result.qr_type})
             </h2>
-            
+
             {result.accounts.map((account, index) => (
               <div key={index} className="card border-green-200 bg-green-50">
                 <div className="flex items-start justify-between mb-4">

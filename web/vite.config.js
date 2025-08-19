@@ -11,13 +11,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: process.env.NODE_ENV === 'production' 
-          ? 'https://your-vercel-app.vercel.app'
-          : 'http://localhost:8000',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        rewrite: process.env.NODE_ENV === 'production'
-          ? undefined
-          : (path) => path.replace(/^\/api/, '')
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   }
