@@ -59,3 +59,85 @@ TOTPdecode/
 ├── test_qr_code.png        # Test QR code image
 └── README.md               # Project documentation
 ```
+
+## Data Processing Flow
+
+The application implements a pipeline architecture for processing QR code images through to TOTP code generation:
+
+```mermaid
+flowchart TD
+    A[Image File Upload] --> B[Load Image to Canvas]
+    B --> C[Extract ImageData]
+    C --> D[QR Code Detection]
+    D --> E{QR Code Found?}
+    E -->|No| F[Error: No QR code found]
+    E -->|Yes| G[Parse QR Data]
+    G --> H{QR Code Type?}
+    H -->|otpauth://totp/| I[Parse Standard TOTP URL]
+    H -->|otpauth-migration://| J[Parse Migration Data]
+    H -->|Other| K[Error: Unsupported format]
+    
+    I --> L[Extract Account Info]
+    J --> M[Decode Base64 Data]
+    M --> N[Parse Protobuf Payload]
+    N --> O[Extract Multiple Accounts]
+    O --> P[Convert Secrets to Base32]
+    
+    L --> Q[Generate TOTP Code]
+    P --> Q
+    Q --> R[Display Results]
+    
+    style A fill:#e1f5fe
+     style R fill:#c8e6c9
+     style F fill:#ffcdd2
+     style K fill:#ffcdd2
+```
+
+## Security Model
+
+The application implements a zero-trust security model where all sensitive operations occur exclusively within the user's browser environment:
+
+```mermaid
+flowchart TB
+    subgraph "External Environment"
+        U[User Image Input]
+        EXT["❌ No External Services"]
+        NET["❌ No Network Communication"]
+        STORE["❌ No Data Persistence"]
+    end
+    
+    subgraph "Browser Security Boundary" 
+        subgraph "Browser Memory Only"
+            IMG[Image Processing<br/>Canvas API]
+            QR[QR Code Decoding<br/>jsQR]
+            TOTP[TOTP Generation<br/>totp-generator]
+            MEM["🔒 Temporary Memory"]
+        end
+        
+        subgraph "Security Guarantees"
+            G1["✅ TOTP secrets never leave browser"]
+            G2["✅ No server communication"]
+            G3["✅ No persistent storage"]
+            G4["✅ Local cryptographic operations"]
+        end
+    end
+    
+    U --> IMG
+    IMG --> QR
+    QR --> TOTP
+    TOTP --> MEM
+    MEM -.-> G1
+    MEM -.-> G2
+    MEM -.-> G3
+    MEM -.-> G4
+    
+    style "Browser Security Boundary" fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    style "Browser Memory Only" fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style "Security Guarantees" fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style "External Environment" fill:#ffebee,stroke:#f44336,stroke-width:2px
+    style U fill:#e3f2fd
+    style MEM fill:#fff9c4
+    style EXT fill:#ffcdd2
+    style NET fill:#ffcdd2
+    style STORE fill:#ffcdd2
+```
