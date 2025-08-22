@@ -101,32 +101,29 @@ The application implements a zero-trust security model where all sensitive opera
 flowchart TB
     U[User Image Input]
     
-    subgraph Browser["Browser Security Boundary"]
-        subgraph Memory["Browser Memory Only"]
-            IMG[Image Processing<br/>Canvas API]
-            QR[QR Code Decoding<br/>jsQR]
-            TOTP[TOTP Generation<br/>totp-generator]
-            MEM["🔒 Temporary Memory"]
-        end
-        
-        subgraph Security["Security Guarantees"]
-            G1["✅ TOTP secrets never leave browser"]
-            G2["✅ No server communication"]
-            G3["✅ No persistent storage"]
-            G4["✅ Local cryptographic operations"]
-        end
+    subgraph Memory["Browser Memory Only"]
+        IMG[Image Processing<br/>Canvas API]
+        QR[QR Code Decoding<br/>jsQR]
+        TOTP[TOTP Generation<br/>totp-generator]
+        MEM["🔒 Temporary Memory"]
+    end
+    
+    subgraph Security["Security Guarantees"]
+        G1["✅ TOTP secrets never leave browser"]
+        G2["✅ No server communication"]
+        G3["✅ No persistent storage"]
+        G4["✅ Local cryptographic operations"]
     end
     
     U --> IMG
     IMG --> QR
     QR --> TOTP
     TOTP --> MEM
-    MEM -.-> G1
-    MEM -.-> G2
-    MEM -.-> G3
-    MEM -.-> G4
+    MEM -.- G1
+    MEM -.- G2
+    MEM -.- G3
+    MEM -.- G4
     
-    style Browser stroke:#4caf50,stroke-width:3px
     style Memory stroke:#ff9800,stroke-width:2px
     style Security stroke:#9c27b0,stroke-width:2px
 ```
