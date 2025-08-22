@@ -99,12 +99,7 @@ The application implements a zero-trust security model where all sensitive opera
 
 ```mermaid
 flowchart TB
-    subgraph External["External Environment"]
-        U[User Image Input]
-        EXT["❌ No External Services"]
-        NET["❌ No Network Communication"]
-        STORE["❌ No Data Persistence"]
-    end
+    U[User Image Input]
     
     subgraph Browser["Browser Security Boundary"]
         subgraph Memory["Browser Memory Only"]
@@ -134,5 +129,4 @@ flowchart TB
     style Browser stroke:#4caf50,stroke-width:3px
     style Memory stroke:#ff9800,stroke-width:2px
     style Security stroke:#9c27b0,stroke-width:2px
-    style External stroke:#f44336,stroke-width:2px
 ```
