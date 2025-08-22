@@ -123,7 +123,6 @@ temp/
 
 # Test files
 *.test.js
-*.spec.js
 coverage/
 
 # Playwright
