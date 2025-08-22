@@ -1,16 +1,16 @@
 import jsQR from 'jsqr';
-import { authenticator } from 'otplib';
+import { TOTP } from 'totp-generator';
 import { MigrationPayload } from './otpMigration.js';
 
 class TOTPDecoder {
   constructor() {
     // Algorithm mapping
     this.algorithmMap = {
-      0: 'SHA1',    // ALGORITHM_TYPE_UNSPECIFIED
-      1: 'SHA1',    // SHA1
-      2: 'SHA256',  // SHA256
-      3: 'SHA512',  // SHA512
-      4: 'MD5'      // MD5
+      0: 'SHA-1',    // ALGORITHM_TYPE_UNSPECIFIED
+      1: 'SHA-1',    // SHA1
+      2: 'SHA-256',  // SHA256
+      3: 'SHA-512',  // SHA512
+      4: 'MD5'       // MD5 (not supported by totp-generator, will fallback to SHA-1)
     };
 
     // Digits mapping
@@ -288,18 +288,25 @@ class TOTPDecoder {
    * @param {number} period - Time period in seconds
    * @returns {string} TOTP code
    */
-  generateTOTPCode(secret, algorithm = 'SHA1', digits = 6, period = 30) {
+  generateTOTPCode(secret, algorithm = 'SHA-1', digits = 6, period = 30) {
     try {
-      // Configure authenticator
-      authenticator.options = {
-        algorithm: algorithm,
-        digits: digits,
-        period: period,
-        window: 1
-      };
+      // Handle unsupported algorithms by falling back to SHA-1
+      let supportedAlgorithm = algorithm;
+      if (algorithm === 'MD5') {
+        console.warn('MD5 algorithm not supported by totp-generator, falling back to SHA-1');
+        supportedAlgorithm = 'SHA-1';
+      }
       
-      return authenticator.generate(secret);
+      // Generate TOTP using totp-generator
+      const { otp } = TOTP.generate(secret, {
+        algorithm: supportedAlgorithm,
+        digits: digits,
+        period: period
+      });
+      
+      return otp;
     } catch (error) {
+      console.error('TOTP generation error:', error);
       return '000000';
     }
   }
