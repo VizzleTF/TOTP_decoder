@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Upload, QrCode, Copy, CheckCircle, AlertCircle, Clock } from 'lucide-react'
+import { Upload, QrCode, Copy, CheckCircle, AlertCircle } from 'lucide-react'
 import clsx from 'clsx'
 import TOTPDecoder from './totpDecoder.js'
 
@@ -9,6 +9,114 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [copiedIndex, setCopiedIndex] = useState(null)
+  const [accountTimers, setAccountTimers] = useState({})
+
+  // Calculate time left until next TOTP update based on real time for specific period
+  const calculateTimeLeft = (period = 30) => {
+    const now = Math.floor(Date.now() / 1000)
+    return period - (now % period)
+  }
+
+  // Progress Ring Component
+  const ProgressRing = ({ timeLeft, period = 30, size = 24 }) => {
+    const radius = (size - 4) / 2
+    const circumference = 2 * Math.PI * radius
+    const progress = (timeLeft / period) * circumference
+    
+    return (
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg
+          className="transform -rotate-90"
+          width={size}
+          height={size}
+        >
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="transparent"
+            className="text-gray-600"
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference - progress}
+            className="text-green-400 transition-all duration-1000 ease-linear"
+            strokeLinecap="round"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-xs font-mono text-gray-300">
+            {timeLeft}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  // Auto-refresh TOTP codes synchronized with real TOTP time
+  useEffect(() => {
+    if (!result || !result.accounts || result.accounts.length === 0) return
+
+    // Initialize timers for each account
+    const initialTimers = {}
+    result.accounts.forEach((account, index) => {
+      const period = account.period || 30
+      initialTimers[index] = calculateTimeLeft(period)
+    })
+    setAccountTimers(initialTimers)
+    
+    // Update codes and timers every second
+    const interval = setInterval(() => {
+      const decoder = new TOTPDecoder()
+      let shouldUpdateCodes = false
+      const newTimers = {}
+      
+      result.accounts.forEach((account, index) => {
+        const period = account.period || 30
+        const timeLeft = calculateTimeLeft(period)
+        newTimers[index] = timeLeft
+        
+        // Check if this account needs code update
+        if (timeLeft === period) {
+          shouldUpdateCodes = true
+        }
+      })
+      
+      setAccountTimers(newTimers)
+      
+      // Update codes if any account reached its period
+      if (shouldUpdateCodes) {
+        setResult(prev => {
+          if (!prev || !prev.accounts) return prev
+          
+          const updatedAccounts = prev.accounts.map(account => ({
+            ...account,
+            current_code: decoder.generateTOTPCode(
+              account.secret,
+              account.algorithm,
+              account.digits,
+              account.period
+            )
+          }))
+
+          return {
+            ...prev,
+            accounts: updatedAccounts
+          }
+        })
+      }
+    }, 1000) // Check every second
+
+    return () => clearInterval(interval)
+  }, [result?.qrType])
 
   const processFile = async (file) => {
     setLoading(true)
@@ -160,14 +268,24 @@ function App() {
                     </div>
                   </div>
                   <div className="flex items-center text-green-400">
-                    <Clock className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-mono">
-                      {account.period || 30}s
-                    </span>
+                    <ProgressRing 
+                      timeLeft={accountTimers[index] || 0}
+                      period={account.period || 30}
+                      size={32}
+                    />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Algorithm / Digits
+                    </label>
+                    <div className="bg-gray-800 border border-gray-600 px-3 py-2 rounded text-lg font-mono text-center tracking-wider text-white">
+                      {account.algorithm || 'SHA1'} / {account.digits || 6} digits
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
                       TOTP Code
@@ -187,15 +305,6 @@ function App() {
                           <Copy className="w-4 h-4" />
                         )}
                       </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Algorithm / Digits
-                    </label>
-                    <div className="bg-gray-800 border border-gray-600 px-3 py-2 rounded text-sm text-white">
-                      {account.algorithm || 'SHA1'} / {account.digits || 6} digits
                     </div>
                   </div>
                 </div>
