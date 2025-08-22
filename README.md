@@ -99,22 +99,22 @@ The application implements a zero-trust security model where all sensitive opera
 
 ```mermaid
 flowchart TB
-    subgraph "External Environment"
+    subgraph External["External Environment"]
         U[User Image Input]
         EXT["❌ No External Services"]
         NET["❌ No Network Communication"]
         STORE["❌ No Data Persistence"]
     end
     
-    subgraph "Browser Security Boundary" 
-        subgraph "Browser Memory Only"
+    subgraph Browser["Browser Security Boundary"]
+        subgraph Memory["Browser Memory Only"]
             IMG[Image Processing<br/>Canvas API]
             QR[QR Code Decoding<br/>jsQR]
             TOTP[TOTP Generation<br/>totp-generator]
             MEM["🔒 Temporary Memory"]
         end
         
-        subgraph "Security Guarantees"
+        subgraph Security["Security Guarantees"]
             G1["✅ TOTP secrets never leave browser"]
             G2["✅ No server communication"]
             G3["✅ No persistent storage"]
@@ -131,10 +131,10 @@ flowchart TB
     MEM -.-> G3
     MEM -.-> G4
     
-    style "Browser Security Boundary" fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
-    style "Browser Memory Only" fill:#fff3e0,stroke:#ff9800,stroke-width:2px
-    style "Security Guarantees" fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
-    style "External Environment" fill:#ffebee,stroke:#f44336,stroke-width:2px
+    style Browser fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    style Memory fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Security fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style External fill:#ffebee,stroke:#f44336,stroke-width:2px
     style U fill:#e3f2fd
     style MEM fill:#fff9c4
     style EXT fill:#ffcdd2
