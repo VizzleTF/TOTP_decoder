@@ -28,7 +28,7 @@ export const AccountsList: React.FC<AccountsListProps> = ({
       </h2>
 
       {result.accounts.map((account, index) => (
-        <div key={index} className="card border-green-600 bg-green-900/20">
+        <div key={index} className={`card border-green-600 bg-green-900/20 ${index < result.accounts.length - 1 ? 'mb-4' : ''}`}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center">
               <CheckCircle className="w-5 h-5 text-green-400 mr-2 mt-0.5" />

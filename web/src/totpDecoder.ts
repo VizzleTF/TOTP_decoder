@@ -204,12 +204,12 @@ class TOTPDecoder {
           const secret = this.uint8ArrayToBase32(otpParam.secret);
           const algorithm = this.algorithmMap[otpParam.algorithm] || 'SHA1';
           const digits = this.digitsMap[otpParam.digits] || 6;
-          const period = 30; // Default period for TOTP
+          let period = 30; // Default period for TOTP
+          // Note: Google Authenticator migration protocol doesn't include period information
+          // in the protobuf schema, so we default to 30 seconds as per RFC 6238
 
-          const currentCode = this.generateTOTPCode(secret, algorithm, digits, period);
-
-          // Generate otpauth URL
-          const otpauthUrl = this.generateOtpauthUrl(
+          // Generate initial otpauth URL with default period
+          let otpauthUrl = this.generateOtpauthUrl(
             otpParam.issuer || '',
             otpParam.name || '',
             secret,
@@ -217,6 +217,31 @@ class TOTPDecoder {
             digits,
             period
           );
+
+          // Try to extract period from the generated otpauth URL
+          // This allows for potential future enhancements where period might be available
+          try {
+            const parsedAccount = this.parseOtpauthUrl(otpauthUrl);
+            period = parsedAccount.period || 30;
+          } catch (error) {
+            // If parsing fails, keep the default period of 30
+            console.warn('Failed to extract period from generated otpauth URL, using default period of 30:', error);
+            period = 30;
+          }
+
+          const currentCode = this.generateTOTPCode(secret, algorithm, digits, period);
+
+          // Regenerate otpauth URL with the correct period (in case it was different)
+          if (period !== 30) {
+            otpauthUrl = this.generateOtpauthUrl(
+              otpParam.issuer || '',
+              otpParam.name || '',
+              secret,
+              algorithm,
+              digits,
+              period
+            );
+          }
 
           accounts.push({
             issuer: otpParam.issuer || '',
