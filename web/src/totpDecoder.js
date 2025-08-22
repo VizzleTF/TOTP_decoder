@@ -236,7 +236,6 @@ class TOTPDecoder {
       
       return otp;
     } catch (error) {
-      console.error('TOTP generation error:', error);
       return '000000';
     }
   }
