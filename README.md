@@ -131,13 +131,8 @@ flowchart TB
     MEM -.-> G3
     MEM -.-> G4
     
-    style Browser fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
-    style Memory fill:#fff3e0,stroke:#ff9800,stroke-width:2px
-    style Security fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
-    style External fill:#ffebee,stroke:#f44336,stroke-width:2px
-    style U fill:#e3f2fd
-    style MEM fill:#fff9c4
-    style EXT fill:#ffcdd2
-    style NET fill:#ffcdd2
-    style STORE fill:#ffcdd2
+    style Browser stroke:#4caf50,stroke-width:3px
+    style Memory stroke:#ff9800,stroke-width:2px
+    style Security stroke:#9c27b0,stroke-width:2px
+    style External stroke:#f44336,stroke-width:2px
 ```
