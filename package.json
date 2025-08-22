@@ -1,13 +1,25 @@
 {
   "name": "totp-decoder",
   "version": "1.0.0",
-  "private": true,
+  "description": "A modern, fully client-side web application for decoding TOTP QR codes",
   "scripts": {
-    "build": "cd web && npm install && npm run build",
+    "build": "cd web && npm run build",
     "dev": "cd web && npm run dev",
-    "install-deps": "cd web && npm install"
+    "preview": "cd web && npm run preview"
   },
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  "keywords": [
+    "totp",
+    "qr-code",
+    "authenticator",
+    "2fa",
+    "otp",
+    "google-authenticator"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/TOTPdecode.git"
+  },
+  "homepage": "https://totp-decoder.vercel.app"
 }

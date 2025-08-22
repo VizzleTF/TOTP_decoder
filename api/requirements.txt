@@ -1,7 +1,0 @@
-fastapi==0.116.1
-pyzbar==0.1.9
-Pillow==10.0.0
-pyotp==2.9.0
-protobuf==6.32.0
-python-multipart==0.0.20
-mangum==0.17.0

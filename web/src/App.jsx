@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, QrCode, Copy, CheckCircle, AlertCircle, Clock } from 'lucide-react'
 import clsx from 'clsx'
+import TOTPDecoder from './totpDecoder.js'
 
 function App() {
   const [result, setResult] = useState(null)
@@ -15,25 +16,9 @@ function App() {
     setResult(null)
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await fetch('http://localhost:8000/decode', {
-        method: 'POST',
-        body: formData,
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to decode QR code')
-      }
-
-      if (data.success) {
-        setResult(data)
-      } else {
-        throw new Error(data.error || 'Failed to decode QR code')
-      }
+      const decoder = new TOTPDecoder()
+      const data = await decoder.processFile(file)
+      setResult(data)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -159,7 +144,7 @@ function App() {
           <div className="card animate-slide-up">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
               <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
-              Decoding Results ({result.qr_type})
+              Decoding Results ({result.qrType})
             </h2>
 
             {result.accounts.map((account, index) => (

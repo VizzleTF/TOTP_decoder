@@ -1,6 +1,6 @@
 # TOTP QR Code Decoder
 
-A comprehensive solution for decoding TOTP (Time-based One-Time Password) QR codes from images, available both as a Python command-line tool and a modern web application.
+A modern, fully client-side web application for decoding TOTP (Time-based One-Time Password) QR codes from images. No server required - everything runs securely in your browser!
 
 ## 🚀 Try it Online
 
@@ -11,44 +11,29 @@ No installation required! Simply visit the link above to start decoding TOTP QR 
 ## Features
 
 ### Core Features
-- Decode TOTP QR codes from images and screenshots
-- Extract all TOTP parameters (secret, issuer, algorithm, period)
-- Support for Google Authenticator migration QR codes (otpauth-migration://)
-- Generate current TOTP codes
-- Handle multiple accounts from a single migration QR code
-- High accuracy QR code recognition using OpenCV
+- 🔐 **Fully Client-Side**: All processing happens in your browser - no data sent to servers
+- 📷 **QR Code Decoding**: Decode TOTP QR codes from images and screenshots
+- 🔑 **Complete Parameter Extraction**: Extract all TOTP parameters (secret, issuer, algorithm, period)
+- 📱 **Google Authenticator Migration**: Support for Google Authenticator migration QR codes (otpauth-migration://)
+- ⏰ **Live TOTP Generation**: Generate current TOTP codes in real-time
+- 👥 **Multiple Accounts**: Handle multiple accounts from a single migration QR code
+- 🎯 **High Accuracy**: Advanced QR code recognition with multiple decoding strategies
 
 ### Web Application Features
-- 🌐 **Modern Web Interface**: Clean, responsive UI built with React + Vite + Tailwind CSS
+- 🌐 **Modern Interface**: Clean, responsive UI built with React + Vite + Tailwind CSS
 - 📁 **Drag & Drop**: Simply drag QR code images onto the interface
 - 📋 **Clipboard Support**: Paste images directly with Ctrl+V (Cmd+V on Mac)
 - 📱 **Mobile Friendly**: Responsive design that works on all devices
 - 🔄 **Real-time Processing**: Instant QR code decoding and TOTP generation
 - 📋 **One-click Copy**: Copy TOTP codes and OTP Auth URLs with a single click
-- ⚡ **Fast & Secure**: Client-server architecture with local processing
+- 🔒 **Privacy First**: No data leaves your device - completely secure and private
 
-## Installation
+## Local Development
 
 ### Requirements
 
-- Python 3.7+
-- pip
-
-### Install Dependencies
-
-```bash
-git clone <repository-url>
-cd TOTPdecode
-pip install -r requirements.txt
-```
-
-### Alternative Installation
-
-```bash
-pip install opencv-python pyotp protobuf
-```
-
-## Web Application Deployment
+- Node.js 16+ and npm
+- Modern web browser
 
 ### Quick Start
 
@@ -58,125 +43,47 @@ pip install opencv-python pyotp protobuf
    cd TOTPdecode
    ```
 
-2. **Install Python dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Install Node.js dependencies**:
+2. **Install dependencies**:
    ```bash
    cd web
    npm install
-   cd ..
    ```
 
-4. **Start the backend server**:
+3. **Start the development server**:
    ```bash
-   python3 app.py
-   ```
-   The API server will start on `http://localhost:8000`
-
-5. **Start the frontend development server** (in a new terminal):
-   ```bash
-   cd web
    npm run dev
    ```
-   The web application will be available at `http://localhost:5173`
+   The application will be available at `http://localhost:3000`
 
-### Production Deployment
-
-#### Backend (FastAPI)
-```bash
-# Install production dependencies
-pip install uvicorn[standard]
-
-# Run with Uvicorn
-uvicorn app:app --host 0.0.0.0 --port 8000
-
-# Or with Gunicorn (recommended for production)
-pip install gunicorn
-gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
-```
-
-#### Frontend (React)
-```bash
-cd web
-
-# Build for production
-npm run build
-
-# Serve with a static file server (e.g., nginx, Apache, or serve)
-npm install -g serve
-serve -s dist -l 3000
-```
-
-### Vercel Deployment
-
-For serverless deployment on Vercel:
-
-1. **Install Vercel CLI:**
+4. **Build for production**:
    ```bash
-   npm install -g vercel
+   npm run build
    ```
+   The built files will be in the `dist` directory.
 
-2. **Deploy to Vercel:**
+## Deployment
+
+### Deploy to Vercel
+
+1. **One-click deployment**:
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/VizzleTF/TOTP_decoder)
+
+2. **Manual deployment**:
    ```bash
-   # Login to Vercel
-   vercel login
+   # Install Vercel CLI
+   npm i -g vercel
    
-   # Deploy the application
+   # Deploy from project root
    vercel
    ```
 
-3. **Configuration:**
-   - The `vercel.json` file is already configured
-   - Backend runs as serverless functions in `/api`
-   - Frontend is built and served statically from `/web`
+### Deploy to Other Platforms
 
-4. **Environment Setup:**
-   - No additional environment variables needed
-   - All processing happens client-side and in serverless functions
+Since this is a static React application, you can deploy it to any static hosting service:
 
-### Docker Deployment (Optional)
-
-Create a `docker-compose.yml` file:
-```yaml
-version: '3.8'
-services:
-  backend:
-    build: .
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: uvicorn app:app --host 0.0.0.0 --port 8000
-  
-  frontend:
-    build: ./web
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-```
-
-Then run:
-```bash
-docker-compose up -d
-```
-
-### Environment Configuration
-
-Create a `.env` file in the root directory:
-```env
-# Backend configuration
-FASTAPI_HOST=0.0.0.0
-FASTAPI_PORT=8000
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000
-
-# Frontend configuration (in web/.env)
-VITE_API_URL=http://localhost:8000
-```
+- **Netlify**: Drag and drop the `web/dist` folder
+- **GitHub Pages**: Use GitHub Actions to build and deploy
+- **Cloudflare Pages**: Connect your repository for automatic deployments
 
 ## Usage
 
@@ -189,46 +96,40 @@ VITE_API_URL=http://localhost:8000
    - Pasting an image from clipboard with Ctrl+V (Cmd+V on Mac)
 3. **View results**: The application will automatically decode the QR code and display:
    - TOTP account information (issuer, account name)
-   - Current TOTP code
-   - OTP Auth URL for easy import
+   - Current TOTP code (updates every 30 seconds)
+   - OTP Auth URL for easy import into other authenticator apps
    - Technical parameters (algorithm, digits, period)
 4. **Copy information**: Use the copy buttons to copy TOTP codes or OTP Auth URLs
+5. **Multiple accounts**: For Google Authenticator migration QR codes, all accounts will be displayed
 
-### Command Line Interface
+### Example Results
 
-```bash
-python totp_decoder.py <image_path>
+**Standard TOTP QR Code:**
 ```
+✅ QR Code Type: Standard TOTP
 
-### Examples
+📱 Account: user@example.com
+🏢 Issuer: Google
+🔑 Current TOTP: 123456
+⚙️ Algorithm: SHA1 | Digits: 6 | Period: 30s
 
-```bash
-python totp_decoder.py screenshot.png
-python totp_decoder.py migration_export.jpg
-python totp_decoder.py --help
-```
-
-### Example Output
-
-```
-Processing image: screenshot.png
-Found QR code: otpauth://totp/Google:user@example.com?secret=JBSWY3DP...
-
-==================================================
-TOTP INFORMATION
-==================================================
-Issuer: Google
-Account: user@example.com
-Secret: JBSWY3DPEHPK3PXP
-Algorithm: SHA1
-Digits: 6
-Period (sec): 30
-
-Current code: 123456
-
-Original URL:
+📋 OTP Auth URL:
 otpauth://totp/Google:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Google
-==================================================
+```
+
+**Google Authenticator Migration QR Code:**
+```
+✅ QR Code Type: Google Authenticator Migration
+📦 Found 3 accounts
+
+📱 Account 1: user@gmail.com (Google)
+🔑 Current TOTP: 456789
+
+📱 Account 2: user@github.com (GitHub)
+🔑 Current TOTP: 987654
+
+📱 Account 3: user@aws.com (Amazon Web Services)
+🔑 Current TOTP: 321098
 ```
 
 ## Supported Formats
@@ -258,96 +159,45 @@ TOTPdecode/
 ├── .gitignore            # Git ignore rules
 ├── .vercelignore         # Vercel ignore rules
 ├── vercel.json           # Vercel deployment configuration
-├── totp_decoder.py       # Core TOTP decoder library
-├── app.py                # FastAPI web server (local development)
-├── requirements.txt      # Python dependencies
 ├── README.md             # Documentation
-├── test_decoder.py       # Tests
-├── OtpMigration.proto    # Protobuf schema
-├── OtpMigration_pb2.py   # Generated protobuf classes
-├── api/                  # Vercel serverless functions
-│   ├── index.py          # FastAPI serverless handler
-│   ├── requirements.txt  # API dependencies
-│   └── OtpMigration_pb2.py # Protobuf classes for serverless
+├── test_qr_code.png      # Sample QR code for testing
 └── web/                  # React web application
     ├── package.json      # Node.js dependencies
     ├── vite.config.js    # Vite configuration
     ├── tailwind.config.js # Tailwind CSS configuration
+    ├── postcss.config.js # PostCSS configuration
     ├── index.html        # HTML template
+    ├── public/           # Static assets
+    │   └── vite.svg      # Vite logo
     ├── src/
     │   ├── App.jsx       # Main React component
     │   ├── main.jsx      # React entry point
-    │   └── index.css     # Global styles
+    │   ├── index.css     # Global styles
+    │   ├── totpDecoder.js # Core TOTP decoding logic
+    │   ├── otpMigration.js # Google Authenticator migration protobuf
+    │   ├── components/   # React components
+    │   └── hooks/        # Custom React hooks
     └── dist/             # Production build (generated)
 ```
 
 ## How It Works
 
-### Command Line Tool
-1. **Image Loading**: Loads image using OpenCV
-2. **QR Code Detection**: Uses OpenCV QR code detector for recognition
+### Client-Side Architecture
+1. **Image Processing**: Uses HTML5 Canvas API to load and process images
+2. **QR Code Detection**: Utilizes jsQR library for QR code recognition with multiple decoding strategies
 3. **URL Parsing**: Extracts parameters from `otpauth://` or `otpauth-migration://` URLs
-4. **Code Generation**: Creates current TOTP code using PyOTP
-5. **Output**: Displays all information in a readable format
+4. **Protobuf Decoding**: Uses protobufjs to decode Google Authenticator migration data
+5. **TOTP Generation**: Creates current TOTP codes using otplib
+6. **Real-time Updates**: TOTP codes update automatically every 30 seconds
+7. **Privacy First**: All processing happens in your browser - no data sent to servers
 
-### Web Application Architecture
-1. **Frontend (React)**: Modern web interface with drag-and-drop support
-2. **Backend (FastAPI)**: RESTful API server for image processing
-3. **Image Processing**: Same OpenCV-based QR code detection as CLI tool
-4. **Real-time Generation**: TOTP codes and OTP Auth URLs generated on-demand
-5. **Secure Communication**: CORS-enabled API with local processing
-
-## API Documentation
-
-The web application provides a simple REST API:
-
-### POST /decode
-
-Decodes a QR code image and returns TOTP information.
-
-**Request:**
-- Method: `POST`
-- Content-Type: `multipart/form-data`
-- Body: Form data with `file` field containing the image
-
-**Response:**
-```json
-{
-  "success": true,
-  "qr_type": "otpauth",
-  "accounts": [
-    {
-      "secret": "JBSWY3DPEHPK3PXP",
-      "issuer": "Google",
-      "account": "user@example.com",
-      "algorithm": "SHA1",
-      "digits": 6,
-      "period": 30,
-      "current_code": "123456",
-      "otpauth_url": "otpauth://totp/Google:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Google&algorithm=SHA1&digits=6&period=30"
-    }
-  ]
-}
-```
-
-**Error Response:**
-```json
-{
-  "success": false,
-  "error": "No QR code found in image"
-}
-```
-
-### GET /health
-
-Health check endpoint.
-
-**Response:**
-```json
-{
-  "status": "healthy"
-}
-```
+### Key Technologies
+- **React + Vite**: Modern frontend framework with fast development
+- **Tailwind CSS**: Utility-first CSS framework for styling
+- **jsQR**: Pure JavaScript QR code decoding library
+- **otplib**: JavaScript TOTP/HOTP library
+- **protobufjs**: Protocol Buffers for JavaScript
+- **Lucide React**: Beautiful icon library
 
 ## Troubleshooting
 
@@ -358,99 +208,6 @@ Health check endpoint.
 - Check that the QR code is not cropped
 - Make sure the image is not too blurry
 - For web app: Try refreshing the page and uploading again
-
-### Web Application Issues
-
-#### Backend Server Won't Start
-```bash
-# Check if port 8000 is already in use
-lsof -i :8000
-
-# Kill existing process if needed
-kill -9 <PID>
-
-# Start server on different port
-uvicorn app:app --host 0.0.0.0 --port 8001
-```
-
-#### Frontend Build Issues
-```bash
-# Clear npm cache
-npm cache clean --force
-
-# Delete node_modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
-
-# Try with different Node.js version (use nvm)
-nvm use 18
-npm install
-```
-
-#### CORS Issues
-- Ensure backend is running on correct port
-- Check that frontend is configured to use correct API URL
-- Verify CORS settings in `app.py`
-
-#### File Upload Issues
-- Check file size (max 10MB)
-- Ensure image format is supported (PNG, JPG, JPEG, BMP, TIFF, WebP)
-- Try different image or browser
-
-### Installation Issues
-
-```bash
-pip install opencv-python-headless
-pip install --upgrade pip setuptools wheel
-```
-
-### Dependency Issues
-
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-venv\Scripts\activate     # Windows
-pip install -r requirements.txt
-```
-
-### Node.js Issues
-
-```bash
-# Install Node.js (recommended version 16+)
-# Using nvm (recommended)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-nvm install 18
-nvm use 18
-
-# Or download from nodejs.org
-```
-
-## Security
-
-⚠️ **Important Security Considerations**: 
-
-### General Security
-- TOTP secret keys are confidential information
-- Do not share secrets with third parties
-- Delete QR code screenshots after use
-- Use this tool only for your own accounts
-
-### Web Application Security
-- **Local Processing**: All QR code processing happens locally on your server
-- **No Data Storage**: Images and secrets are not stored on disk
-- **Memory Cleanup**: Sensitive data is cleared from memory after processing
-- **HTTPS Recommended**: Use HTTPS in production to encrypt data in transit
-- **Network Security**: Consider running behind a reverse proxy (nginx/Apache)
-- **Access Control**: Implement authentication if deploying publicly
-
-### Production Security Checklist
-- [ ] Use HTTPS/TLS certificates
-- [ ] Configure proper CORS origins
-- [ ] Set up firewall rules
-- [ ] Use environment variables for configuration
-- [ ] Regular security updates for dependencies
-- [ ] Monitor server logs for suspicious activity
-- [ ] Consider rate limiting for API endpoints
 
 ## License
 
@@ -466,38 +223,3 @@ Pull requests and issues are welcome! Please:
 4. Ensure code follows project style
 5. Test both CLI and web versions
 6. Create a pull request
-
-### Development Setup
-
-```bash
-# Clone and setup
-git clone <your-fork>
-cd TOTPdecode
-
-# Backend development
-pip install -r requirements.txt
-python3 app.py
-
-# Frontend development
-cd web
-npm install
-npm run dev
-```
-
-### Code Style
-- **Python**: Follow PEP 8, use type hints where possible
-- **JavaScript/React**: Use ESLint and Prettier configurations
-- **CSS**: Use Tailwind CSS utility classes
-
-## Support
-
-If you have questions or issues:
-
-1. Check the "Troubleshooting" section
-2. For web app issues: Check browser console and server logs
-3. Create an issue in the repository with:
-   - Full error message
-   - Sample image (if applicable)
-   - Browser/OS information (for web app)
-   - Steps to reproduce
-4. For urgent issues: Include "[URGENT]" in the issue title

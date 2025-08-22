@@ -1,32 +1,12 @@
 {
-  "version": 2,
-  "builds": [
+  "buildCommand": "cd web && npm run build",
+  "outputDirectory": "web/dist",
+  "devCommand": "cd web && npm run dev",
+  "installCommand": "cd web && npm install",
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "web/dist"
-      }
-    },
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "runtime": "python3.9"
-      }
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/web/dist/$1"
-    }
-  ],
-  "env": {
-    "PYTHONPATH": "."
-  }
+  ]
 }
