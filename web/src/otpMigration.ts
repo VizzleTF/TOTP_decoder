@@ -1,5 +1,44 @@
 import protobuf from 'protobufjs';
 
+// TypeScript interfaces for the protobuf structures
+export interface IOtpParameters {
+  secret?: Uint8Array;
+  name?: string;
+  issuer?: string;
+  algorithm?: Algorithm;
+  digits?: DigitCount;
+  type?: OtpType;
+  counter?: number;
+}
+
+export interface IMigrationPayload {
+  otpParameters?: IOtpParameters[];
+  version?: number;
+  batchSize?: number;
+  batchIndex?: number;
+  batchId?: number;
+}
+
+export enum Algorithm {
+  ALGORITHM_TYPE_UNSPECIFIED = 0,
+  SHA1 = 1,
+  SHA256 = 2,
+  SHA512 = 3,
+  MD5 = 4
+}
+
+export enum DigitCount {
+  DIGIT_COUNT_UNSPECIFIED = 0,
+  SIX = 1,
+  EIGHT = 2
+}
+
+export enum OtpType {
+  OTP_TYPE_UNSPECIFIED = 0,
+  HOTP = 1,
+  TOTP = 2
+}
+
 // Google Authenticator Migration Protocol Buffer Schema
 const migrationProtoSchema = {
   "nested": {

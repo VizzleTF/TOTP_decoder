@@ -41,10 +41,10 @@ A modern, fully client-side web application for decoding TOTP (Time-based One-Ti
 TOTPdecode/
 ├── web/                    # React web application
 │   ├── src/
-│   │   ├── App.jsx         # Main React component
-│   │   ├── totpDecoder.js  # Core TOTP decoding logic
-│   │   ├── otpMigration.js # Migration protobuf decoder
-│   │   ├── main.jsx        # React entry point
+│   │   ├── App.tsx         # Main React component
+│   │   ├── totpDecoder.ts  # Core TOTP decoding logic
+│   │   ├── otpMigration.ts # Migration protobuf decoder
+│   │   ├── main.tsx        # React entry point
 │   │   └── index.css       # Global styles
 │   ├── public/
 │   │   └── vite.svg        # Vite logo

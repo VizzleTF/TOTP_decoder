@@ -1,8 +1,35 @@
 import jsQR from 'jsqr';
 import { TOTP } from 'totp-generator';
-import { MigrationPayload } from './otpMigration.js';
+import { MigrationPayload } from './otpMigration';
+
+interface TOTPAccount {
+  issuer: string;
+  account: string;
+  secret: string;
+  algorithm: string;
+  digits: number;
+  period: number;
+  current_code: string;
+  otpauth_url: string;
+}
+
+interface DecodingResult {
+  qrType: string;
+  accounts: TOTPAccount[];
+}
+
+interface AlgorithmMap {
+  [key: number]: string;
+}
+
+interface DigitsMap {
+  [key: number]: number;
+}
 
 class TOTPDecoder {
+  private algorithmMap: AlgorithmMap;
+  private digitsMap: DigitsMap;
+
   constructor() {
     // Algorithm mapping
     this.algorithmMap = {
@@ -23,40 +50,40 @@ class TOTPDecoder {
 
   /**
    * Decode QR code from image file
-   * @param {File} file - Image file containing QR code
-   * @returns {Promise<{qrType: string, accounts: Array}>}
    */
-  async processFile(file) {
+  async processFile(file: File): Promise<DecodingResult> {
     try {
       const imageData = await this.loadImageFromFile(file);
       const qrData = this.decodeQRCode(imageData);
-      
+
       if (!qrData) {
         throw new Error('No QR code found in image');
       }
 
       return this.parseQRData(qrData);
     } catch (error) {
-      throw new Error(`Failed to process file: ${error.message}`);
+      throw new Error(`Failed to process file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   /**
    * Load image from file and convert to ImageData
-   * @param {File} file - Image file
-   * @returns {Promise<ImageData>}
    */
-  async loadImageFromFile(file) {
-    return new Promise((resolve, reject) => {
+  private async loadImageFromFile(file: File): Promise<ImageData> {
+    return new Promise<ImageData>((resolve, reject) => {
       const img = new Image();
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Failed to get canvas context'));
+        return;
+      }
 
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
-        
+
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         resolve(imageData);
       };
@@ -68,10 +95,8 @@ class TOTPDecoder {
 
   /**
    * Decode QR code from ImageData
-   * @param {ImageData} imageData - Image data
-   * @returns {string|null} QR code data or null if not found
    */
-  decodeQRCode(imageData) {
+  private decodeQRCode(imageData: ImageData): string | null {
     try {
       const code = jsQR(imageData.data, imageData.width, imageData.height);
       return code ? code.data : null;
@@ -84,10 +109,8 @@ class TOTPDecoder {
 
   /**
    * Parse QR code data and determine type
-   * @param {string} qrData - Raw QR code data
-   * @returns {{qrType: string, accounts: Array}}
    */
-  parseQRData(qrData) {
+  private parseQRData(qrData: string): DecodingResult {
     if (qrData.startsWith('otpauth://totp/')) {
       // Standard TOTP QR code
       const account = this.parseOtpauthUrl(qrData);
@@ -109,17 +132,15 @@ class TOTPDecoder {
 
   /**
    * Parse standard otpauth:// URL
-   * @param {string} url - otpauth URL
-   * @returns {Object} Account information
    */
-  parseOtpauthUrl(url) {
+  private parseOtpauthUrl(url: string): TOTPAccount {
     try {
       const urlObj = new URL(url);
       const pathParts = urlObj.pathname.substring(1).split(':');
-      
+
       let issuer = '';
       let account = '';
-      
+
       if (pathParts.length === 2) {
         issuer = decodeURIComponent(pathParts[0]);
         account = decodeURIComponent(pathParts[1]);
@@ -154,41 +175,39 @@ class TOTPDecoder {
         otpauth_url: url
       };
     } catch (error) {
-      throw new Error(`Failed to parse otpauth URL: ${error.message}`);
+      throw new Error(`Failed to parse otpauth URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   /**
    * Parse Google Authenticator migration URL
-   * @param {string} url - Migration URL
-   * @returns {Array} Array of account information
    */
-  parseMigrationUrl(url) {
+  private parseMigrationUrl(url: string): TOTPAccount[] {
     try {
       const urlObj = new URL(url);
       const data = urlObj.searchParams.get('data');
-      
+
       if (!data) {
         throw new Error('No data parameter in migration URL');
       }
 
       // Decode base64 data
       const binaryData = this.base64ToUint8Array(data);
-      
+
       // Parse protobuf data
-      const payload = MigrationPayload.decode(binaryData);
-      
-      const accounts = [];
-      
+      const payload = MigrationPayload.decode(binaryData) as any;
+
+      const accounts: TOTPAccount[] = [];
+
       for (const otpParam of payload.otpParameters) {
         if (otpParam.type === 2) { // TOTP type
           const secret = this.uint8ArrayToBase32(otpParam.secret);
           const algorithm = this.algorithmMap[otpParam.algorithm] || 'SHA1';
           const digits = this.digitsMap[otpParam.digits] || 6;
           const period = 30; // Default period for TOTP
-          
+
           const currentCode = this.generateTOTPCode(secret, algorithm, digits, period);
-          
+
           // Generate otpauth URL
           const otpauthUrl = this.generateOtpauthUrl(
             otpParam.issuer || '',
@@ -198,7 +217,7 @@ class TOTPDecoder {
             digits,
             period
           );
-          
+
           accounts.push({
             issuer: otpParam.issuer || '',
             account: otpParam.name || '',
@@ -211,29 +230,24 @@ class TOTPDecoder {
           });
         }
       }
-      
+
       return accounts;
     } catch (error) {
-      throw new Error(`Failed to parse migration URL: ${error.message}`);
+      throw new Error(`Failed to parse migration URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   /**
    * Generate TOTP code
-   * @param {string} secret - Base32 encoded secret
-   * @param {string} algorithm - Hash algorithm
-   * @param {number} digits - Number of digits
-   * @param {number} period - Time period in seconds
-   * @returns {string} TOTP code
    */
-  generateTOTPCode(secret, algorithm = 'SHA-1', digits = 6, period = 30) {
+  generateTOTPCode(secret: string, algorithm: string = 'SHA-1', digits: number = 6, period: number = 30): string {
     try {
       const { otp } = TOTP.generate(secret, {
-        algorithm: algorithm,
+        algorithm: algorithm as any,
         digits: digits,
         period: period
       });
-      
+
       return otp;
     } catch (error) {
       return '000000';
@@ -242,15 +256,8 @@ class TOTPDecoder {
 
   /**
    * Generate otpauth URL
-   * @param {string} issuer - Service issuer
-   * @param {string} account - Account name
-   * @param {string} secret - Base32 secret
-   * @param {string} algorithm - Hash algorithm
-   * @param {number} digits - Number of digits
-   * @param {number} period - Time period
-   * @returns {string} otpauth URL
    */
-  generateOtpauthUrl(issuer, account, secret, algorithm, digits, period) {
+  private generateOtpauthUrl(issuer: string, account: string, secret: string, algorithm: string, digits: number, period: number): string {
     const label = issuer ? `${issuer}:${account}` : account;
     const params = new URLSearchParams({
       secret: secret,
@@ -259,16 +266,14 @@ class TOTPDecoder {
       digits: digits.toString(),
       period: period.toString()
     });
-    
+
     return `otpauth://totp/${encodeURIComponent(label)}?${params.toString()}`;
   }
 
   /**
    * Convert base64 string to Uint8Array
-   * @param {string} base64 - Base64 string
-   * @returns {Uint8Array} Byte array
    */
-  base64ToUint8Array(base64) {
+  private base64ToUint8Array(base64: string): Uint8Array {
     const binaryString = atob(base64);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {
@@ -279,29 +284,27 @@ class TOTPDecoder {
 
   /**
    * Convert Uint8Array to base32 string
-   * @param {Uint8Array} bytes - Byte array
-   * @returns {string} Base32 string
    */
-  uint8ArrayToBase32(bytes) {
+  private uint8ArrayToBase32(bytes: Uint8Array): string {
     const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     let result = '';
     let buffer = 0;
     let bitsLeft = 0;
-    
+
     for (const byte of bytes) {
       buffer = (buffer << 8) | byte;
       bitsLeft += 8;
-      
+
       while (bitsLeft >= 5) {
         result += base32Chars[(buffer >> (bitsLeft - 5)) & 31];
         bitsLeft -= 5;
       }
     }
-    
+
     if (bitsLeft > 0) {
       result += base32Chars[(buffer << (5 - bitsLeft)) & 31];
     }
-    
+
     return result;
   }
 }

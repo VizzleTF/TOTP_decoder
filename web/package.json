@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "vercel-build": "vite build"
   },
@@ -21,8 +21,8 @@
     "totp-generator": "^1.0.0"
   },
   "devDependencies": {
-    "@types/react": "18.3.23",
-    "@types/react-dom": "18.3.7",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "4.7.0",
     "autoprefixer": "10.4.21",
     "eslint": "8.57.1",
@@ -31,6 +31,7 @@
     "eslint-plugin-react-refresh": "0.4.20",
     "postcss": "8.5.6",
     "tailwindcss": "3.4.17",
+    "typescript": "^5.9.2",
     "vite": "5.4.19"
   }
 }

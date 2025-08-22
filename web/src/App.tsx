@@ -2,14 +2,36 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, QrCode, Copy, CheckCircle, AlertCircle } from 'lucide-react'
 import clsx from 'clsx'
-import TOTPDecoder from './totpDecoder.js'
+import TOTPDecoder from './totpDecoder'
+
+interface TOTPAccount {
+  issuer?: string
+  account: string
+  secret: string
+  algorithm?: string
+  digits?: number
+  period?: number
+  current_code: string
+  otpauth_url?: string
+}
+
+interface DecodingResult {
+  qrType: string
+  accounts: TOTPAccount[]
+}
+
+interface ProgressRingProps {
+  timeLeft: number
+  period?: number
+  size?: number
+}
 
 function App() {
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [copiedIndex, setCopiedIndex] = useState(null)
-  const [accountTimers, setAccountTimers] = useState({})
+  const [result, setResult] = useState<DecodingResult | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string>('')
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null)
+  const [accountTimers, setAccountTimers] = useState<Record<number, number>>({})
 
   // Calculate time left until next TOTP update based on real time for specific period
   const calculateTimeLeft = (period = 30) => {
@@ -18,11 +40,11 @@ function App() {
   }
 
   // Progress Ring Component
-  const ProgressRing = ({ timeLeft, period = 30, size = 24 }) => {
+  const ProgressRing: React.FC<ProgressRingProps> = ({ timeLeft, period = 30, size = 24 }) => {
     const radius = (size - 4) / 2
     const circumference = 2 * Math.PI * radius
     const progress = (timeLeft / period) * circumference
-    
+
     return (
       <div className="relative" style={{ width: size, height: size }}>
         <svg
@@ -66,37 +88,37 @@ function App() {
     if (!result || !result.accounts || result.accounts.length === 0) return
 
     // Initialize timers for each account
-    const initialTimers = {}
+    const initialTimers: { [key: number]: number } = {}
     result.accounts.forEach((account, index) => {
       const period = account.period || 30
       initialTimers[index] = calculateTimeLeft(period)
     })
     setAccountTimers(initialTimers)
-    
+
     // Update codes and timers every second
     const interval = setInterval(() => {
       const decoder = new TOTPDecoder()
       let shouldUpdateCodes = false
-      const newTimers = {}
-      
+      const newTimers: { [key: number]: number } = {}
+
       result.accounts.forEach((account, index) => {
         const period = account.period || 30
         const timeLeft = calculateTimeLeft(period)
         newTimers[index] = timeLeft
-        
+
         // Check if this account needs code update
         if (timeLeft === period) {
           shouldUpdateCodes = true
         }
       })
-      
+
       setAccountTimers(newTimers)
-      
+
       // Update codes if any account reached its period
       if (shouldUpdateCodes) {
         setResult(prev => {
           if (!prev || !prev.accounts) return prev
-          
+
           const updatedAccounts = prev.accounts.map(account => ({
             ...account,
             current_code: decoder.generateTOTPCode(
@@ -118,9 +140,9 @@ function App() {
     return () => clearInterval(interval)
   }, [result?.qrType])
 
-  const processFile = async (file) => {
+  const processFile = async (file: File) => {
     setLoading(true)
-    setError(null)
+    setError('')
     setResult(null)
 
     try {
@@ -128,13 +150,13 @@ function App() {
       const data = await decoder.processFile(file)
       setResult(data)
     } catch (err) {
-      setError(err.message)
+      setError(err instanceof Error ? err.message : 'Unknown error occurred')
     } finally {
       setLoading(false)
     }
   }
 
-  const onDrop = useCallback((acceptedFiles) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       processFile(acceptedFiles[0])
     }
@@ -150,7 +172,7 @@ function App() {
 
   // Handle paste from clipboard
   useEffect(() => {
-    const handlePaste = async (e) => {
+    const handlePaste = async (e: ClipboardEvent) => {
       const items = e.clipboardData?.items
       if (!items) return
 
@@ -170,14 +192,14 @@ function App() {
     return () => document.removeEventListener('paste', handlePaste)
   }, [])
 
-  const copyToClipboard = async (text, index) => {
+  const copyToClipboard = async (text: string, index: string) => {
     try {
       await navigator.clipboard.writeText(text)
       setCopiedIndex(index)
       setTimeout(() => setCopiedIndex(null), 2000)
     } catch (err) {
-          // Copy failed silently
-        }
+      // Copy failed silently
+    }
   }
 
   return (
@@ -268,7 +290,7 @@ function App() {
                     </div>
                   </div>
                   <div className="flex items-center text-green-400">
-                    <ProgressRing 
+                    <ProgressRing
                       timeLeft={accountTimers[index] || 0}
                       period={account.period || 30}
                       size={32}
@@ -316,10 +338,10 @@ function App() {
                     </label>
                     <div className="flex items-center space-x-2">
                       <code className="flex-1 bg-gray-800 border border-gray-600 px-3 py-2 rounded text-xs break-all text-white">
-                        {account.otpauth_url}
+                        {account.otpauth_url || ''}
                       </code>
                       <button
-                        onClick={() => copyToClipboard(account.otpauth_url, `url-${index}`)}
+                        onClick={() => copyToClipboard(account.otpauth_url || '', `url-${index}`)}
                         className="p-2 text-gray-400 hover:text-gray-200 transition-colors"
                         title="Copy URL"
                       >
