@@ -10,7 +10,7 @@ class TOTPDecoder {
       1: 'SHA-1',    // SHA1
       2: 'SHA-256',  // SHA256
       3: 'SHA-512',  // SHA512
-      4: 'MD5'       // MD5 (not supported by totp-generator, will fallback to SHA-1)
+      4: 'SHA-1'     // MD5 fallback to SHA-1
     };
 
     // Digits mapping
@@ -29,18 +29,7 @@ class TOTPDecoder {
   async processFile(file) {
     try {
       const imageData = await this.loadImageFromFile(file);
-      let qrData = this.decodeQRCode(imageData);
-      
-      // If first attempt failed, try with scaled versions
-      if (!qrData) {
-        const scaledImageData = this.scaleImageData(imageData, 2.0);
-        qrData = this.decodeQRCode(scaledImageData);
-      }
-      
-      if (!qrData) {
-        const scaledImageData = this.scaleImageData(imageData, 0.5);
-        qrData = this.decodeQRCode(scaledImageData);
-      }
+      const qrData = this.decodeQRCode(imageData);
       
       if (!qrData) {
         throw new Error('No QR code found in image');
@@ -66,9 +55,6 @@ class TOTPDecoder {
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
-        
-        // Draw image with better quality settings
-        ctx.imageSmoothingEnabled = false;
         ctx.drawImage(img, 0, 0);
         
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -76,9 +62,6 @@ class TOTPDecoder {
       };
 
       img.onerror = () => reject(new Error('Failed to load image'));
-      
-      // Set crossOrigin to handle CORS issues
-      img.crossOrigin = 'anonymous';
       img.src = URL.createObjectURL(file);
     });
   }
@@ -89,60 +72,15 @@ class TOTPDecoder {
    * @returns {string|null} QR code data or null if not found
    */
   decodeQRCode(imageData) {
-    // Try different decoding strategies like Python version
-    const strategies = [
-      { inversionAttempts: 'dontInvert' },
-      { inversionAttempts: 'onlyInvert' },
-      { inversionAttempts: 'attemptBoth' },
-      { inversionAttempts: 'attemptBoth', canOverwriteImage: true }
-    ];
-
-    for (const options of strategies) {
-      try {
-        const code = jsQR(imageData.data, imageData.width, imageData.height, options);
-        if (code && code.data) {
-          return code.data;
-        }
-      } catch (error) {
-        // Continue to next strategy
-        continue;
-      }
+    try {
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      return code ? code.data : null;
+    } catch (error) {
+      return null;
     }
-
-    return null;
   }
 
-  /**
-   * Scale ImageData by given factor
-   * @param {ImageData} imageData - Original image data
-   * @param {number} scale - Scale factor
-   * @returns {ImageData} Scaled image data
-   */
-  scaleImageData(imageData, scale) {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    const newWidth = Math.floor(imageData.width * scale);
-    const newHeight = Math.floor(imageData.height * scale);
-    
-    canvas.width = newWidth;
-    canvas.height = newHeight;
-    
-    // Create temporary canvas for original image
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    tempCanvas.width = imageData.width;
-    tempCanvas.height = imageData.height;
-    
-    // Put original image data
-    tempCtx.putImageData(imageData, 0, 0);
-    
-    // Scale and draw
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(tempCanvas, 0, 0, newWidth, newHeight);
-    
-    return ctx.getImageData(0, 0, newWidth, newHeight);
-  }
+
 
   /**
    * Parse QR code data and determine type
@@ -290,16 +228,8 @@ class TOTPDecoder {
    */
   generateTOTPCode(secret, algorithm = 'SHA-1', digits = 6, period = 30) {
     try {
-      // Handle unsupported algorithms by falling back to SHA-1
-      let supportedAlgorithm = algorithm;
-      if (algorithm === 'MD5') {
-        console.warn('MD5 algorithm not supported by totp-generator, falling back to SHA-1');
-        supportedAlgorithm = 'SHA-1';
-      }
-      
-      // Generate TOTP using totp-generator
       const { otp } = TOTP.generate(secret, {
-        algorithm: supportedAlgorithm,
+        algorithm: algorithm,
         digits: digits,
         period: period
       });
