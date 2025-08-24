@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Upload } from 'lucide-react'
+import { Upload, Image, Zap } from 'lucide-react'
 import clsx from 'clsx'
 import { Card } from './ui/Card'
 import { SUPPORTED_IMAGE_TYPES } from '../utils/constants'
@@ -23,34 +23,87 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onUpload, loading })
   })
 
   return (
-    <Card className="mb-8">
-      <div
-        {...getRootProps()}
+    <div className="mb-12 scale-in">
+      <Card
         className={clsx(
-          'border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors',
-          'hover:border-blue-400 hover:bg-blue-900/20',
+          'transition-all duration-300 cursor-pointer group',
           {
-            'border-blue-400 bg-blue-900/20': isDragActive,
-            'border-gray-600': !isDragActive,
-            'pointer-events-none opacity-50': loading
+            'border-primary-300 bg-gradient-to-br from-primary-50 to-primary-100/50 shadow-glow': isDragActive,
+            'hover:border-primary-200 hover:shadow-medium hover:-translate-y-1': !loading && !isDragActive,
+            'opacity-60 cursor-not-allowed': loading
           }
         )}
+        variant={isDragActive ? 'glass' : 'default'}
       >
-        <input {...getInputProps()} />
-        <Upload className={clsx(
-          'w-12 h-12 mx-auto mb-4 transition-colors',
-          isDragActive ? 'text-blue-500' : 'text-gray-400'
-        )} />
-        <p className="text-lg font-medium text-gray-200 mb-2">
-          {isDragActive ? 'Drop here' : 'Drag image or click to select'}
-        </p>
-        <p className="text-sm text-gray-400 mb-2">
-          Supports PNG, JPG, GIF, BMP, WebP
-        </p>
-        <p className="text-xs text-gray-500">
-          Or paste from clipboard (Ctrl+V)
-        </p>
-      </div>
-    </Card>
+        <div
+          {...getRootProps()}
+          className="text-center py-12"
+        >
+          <input {...getInputProps()} />
+          
+          <div className="relative mb-6">
+            <div className={clsx(
+              'mx-auto w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-300',
+              {
+                'bg-gradient-to-br from-primary-500 to-primary-600 shadow-glow': isDragActive,
+                'bg-gradient-to-br from-slate-100 to-slate-200 group-hover:from-primary-100 group-hover:to-primary-200': !isDragActive && !loading,
+                'bg-slate-100': loading
+              }
+            )}>
+              {loading ? (
+                <div className="w-8 h-8 border-3 border-slate-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Upload className={clsx(
+                  'w-8 h-8 transition-all duration-300',
+                  {
+                    'text-white': isDragActive,
+                    'text-slate-500 group-hover:text-primary-600': !isDragActive
+                  }
+                )} />
+              )}
+            </div>
+            
+            {isDragActive && (
+              <div className="absolute -inset-2 bg-gradient-to-r from-primary-600 to-primary-700 rounded-3xl opacity-20 blur-xl animate-pulse"></div>
+            )}
+          </div>
+
+          <h3 className={clsx(
+            'text-2xl font-semibold mb-3 transition-colors duration-300',
+            {
+              'text-primary-700': isDragActive,
+              'text-slate-800': !isDragActive
+            }
+          )}>
+            {loading ? 'Processing...' : isDragActive ? 'Drop it here!' : 'Upload QR Code'}
+          </h3>
+
+          <p className="text-slate-600 mb-6 text-lg leading-relaxed">
+            {loading ? (
+              'Decoding your QR code with precision...'
+            ) : isDragActive ? (
+              'Release to decode your QR code instantly'
+            ) : (
+              'Drag & drop your QR code image or click to browse'
+            )}
+          </p>
+
+          <div className="flex items-center justify-center space-x-8 text-sm text-slate-500">
+            <div className="flex items-center">
+              <Image className="w-4 h-4 mr-2" />
+              PNG, JPG, WebP
+            </div>
+            <div className="flex items-center">
+              <Zap className="w-4 h-4 mr-2" />
+              Instant Processing
+            </div>
+          </div>
+
+          <div className="mt-6 text-xs text-slate-400">
+            💡 Pro tip: You can also paste images with <kbd className="px-2 py-1 bg-slate-100 rounded font-mono">Ctrl+V</kbd>
+          </div>
+        </div>
+      </Card>
+    </div>
   )
 }

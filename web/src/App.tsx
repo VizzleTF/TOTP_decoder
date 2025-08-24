@@ -14,8 +14,8 @@ export default function App() {
   const { copiedId, copy } = useClipboard(decode)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen animated-gradient">
+      <div className="max-w-4xl mx-auto px-6 py-12">
         <Header />
         <FileUploader onUpload={decode} loading={loading} />
         <Loading loading={loading} />
@@ -29,7 +29,9 @@ export default function App() {
           />
         )}
       </div>
-      <Footer />
+      <div className="max-w-4xl mx-auto px-6">
+        <Footer />
+      </div>
     </div>
   )
 }

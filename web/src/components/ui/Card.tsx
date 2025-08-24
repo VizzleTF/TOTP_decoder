@@ -4,23 +4,30 @@ import clsx from 'clsx'
 interface CardProps {
   children: React.ReactNode
   className?: string
-  variant?: 'default' | 'success' | 'error'
+  variant?: 'default' | 'success' | 'error' | 'glass'
+  hover?: boolean
 }
 
 export const Card: React.FC<CardProps> = ({ 
   children, 
   className,
-  variant = 'default'
+  variant = 'default',
+  hover = false
 }) => {
   return (
     <div
       className={clsx(
-        'rounded-xl shadow-sm border p-6',
+        'rounded-2xl transition-all duration-300',
         {
-          'bg-gray-800 border-gray-700': variant === 'default',
-          'bg-green-900/20 border-green-600': variant === 'success',
-          'bg-red-900/20 border-red-600': variant === 'error'
+          'bg-white shadow-soft border border-slate-200/60': variant === 'default',
+          'bg-gradient-to-br from-success-50 to-success-100/50 border border-success-200/60 shadow-soft': variant === 'success',
+          'bg-gradient-to-br from-error-50 to-error-100/50 border border-error-200/60 shadow-soft': variant === 'error',
+          'glass-card': variant === 'glass'
         },
+        {
+          'hover:shadow-medium hover:-translate-y-1 cursor-pointer': hover
+        },
+        'p-6',
         className
       )}
     >
