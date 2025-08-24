@@ -1,28 +1,21 @@
-import { useState, useEffect, useCallback } from 'react'
-import { clipboardService } from '../services/clipboardService'
+import { useState, useEffect } from 'react'
+import { ClipboardService } from '../services/ClipboardService'
 
-export const useClipboard = (onPaste?: (file: File) => void) => {
-  const [copiedIndex, setCopiedIndex] = useState<string | null>(null)
+export function useClipboard(onPaste?: (file: File) => void) {
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
-  // Копирование в буфер обмена
-  const copyToClipboard = useCallback(async (text: string, index: string) => {
-    const success = await clipboardService.copyToClipboard(text)
+  const copy = async (text: string, id: string) => {
+    const success = await ClipboardService.copy(text)
     if (success) {
-      setCopiedIndex(index)
-      setTimeout(() => setCopiedIndex(null), 2000)
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(null), 2000)
     }
-  }, [])
+  }
 
-  // Обработка вставки из буфера обмена
   useEffect(() => {
     if (!onPaste) return
-
-    const cleanup = clipboardService.setupPasteListener(onPaste)
-    return cleanup
+    return ClipboardService.setupPasteListener(onPaste)
   }, [onPaste])
 
-  return {
-    copiedIndex,
-    copyToClipboard
-  }
+  return { copiedId, copy }
 }

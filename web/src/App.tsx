@@ -1,34 +1,31 @@
 import React from 'react'
-import { useAccountsManager } from './hooks/useAccountsManager'
+import { useQRDecoder } from './hooks/useQRDecoder'
+import { useTimer } from './hooks/useTimer'
 import { useClipboard } from './hooks/useClipboard'
-import {
-  Header,
-  Footer,
-  QRUploader,
-  AccountsList,
-  LoadingMessage,
-  ErrorMessage
-} from './components'
+import { Header } from './components/Header'
+import { Footer } from './components/Footer'
+import { FileUploader } from './components/FileUploader'
+import { ResultsList } from './components/ResultsList'
+import { Loading, Error } from './components/StatusMessage'
 
-function App() {
-  const { result, accountTimers, loading, error, processFile } = useAccountsManager()
-  const { copiedIndex, copyToClipboard } = useClipboard(processFile)
-
-
+export default function App() {
+  const { result, loading, error, decode } = useQRDecoder()
+  const timers = useTimer(result?.accounts || [])
+  const { copiedId, copy } = useClipboard(decode)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <Header />
-        <QRUploader onFileUpload={processFile} loading={loading} />
-        <LoadingMessage loading={loading} />
-        <ErrorMessage error={error} />
+        <FileUploader onUpload={decode} loading={loading} />
+        <Loading loading={loading} />
+        <Error error={error} />
         {result && (
-          <AccountsList
+          <ResultsList
             result={result}
-            accountTimers={accountTimers}
-            copiedIndex={copiedIndex}
-            onCopyToClipboard={copyToClipboard}
+            timers={timers}
+            copiedId={copiedId}
+            onCopy={copy}
           />
         )}
       </div>
@@ -36,5 +33,3 @@ function App() {
     </div>
   )
 }
-
-export default App
