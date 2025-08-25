@@ -12,7 +12,7 @@ export function useTimer(accounts: TOTPAccount[]) {
     // Initialize timers
     const initialTimers: TimerState = {}
     accounts.forEach((account, index) => {
-      initialTimers[index] = getTimeLeft(account.period)
+      initialTimers[index] = getTimeLeft(account.period || 30)
     })
     setTimers(initialTimers)
 
@@ -22,10 +22,10 @@ export function useTimer(accounts: TOTPAccount[]) {
       let shouldUpdate = false
 
       accounts.forEach((account, index) => {
-        const timeLeft = getTimeLeft(account.period)
+        const timeLeft = getTimeLeft(account.period || 30)
         newTimers[index] = timeLeft
         
-        if (timeLeft === account.period) {
+        if (timeLeft === (account.period || 30)) {
           shouldUpdate = true
         }
       })
@@ -37,9 +37,9 @@ export function useTimer(accounts: TOTPAccount[]) {
         accounts.forEach(account => {
           account.currentCode = TOTPService.generate(
             account.secret,
-            account.algorithm,
-            account.digits,
-            account.period
+            account.algorithm || 'SHA1',
+            account.digits || 6,
+            account.period || 30
           )
         })
       }

@@ -4,12 +4,6 @@ import { Heart, Github, ExternalLink } from 'lucide-react'
 export const Footer: React.FC = () => (
   <footer className="mt-20 pt-12 border-t border-slate-200">
     <div className="text-center fade-in">
-      <div className="flex items-center justify-center mb-6">
-        <div className="bg-gradient-to-r from-slate-100 to-slate-200 p-3 rounded-xl shadow-soft">
-          <Heart className="w-5 h-5 text-error-500" />
-        </div>
-      </div>
-      
       <p className="text-slate-600 mb-6 text-lg">
         Crafted with passion for security and simplicity
       </p>
@@ -36,13 +30,6 @@ export const Footer: React.FC = () => (
           <ExternalLink className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
           <span className="text-sm">View Source</span>
         </a>
-      </div>
-      
-      <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl p-6 max-w-2xl mx-auto">
-        <p className="text-sm text-slate-500 leading-relaxed">
-          This application processes all data locally in your browser. 
-          No information is transmitted to external servers, ensuring complete privacy and security.
-        </p>
       </div>
     </div>
   </footer>

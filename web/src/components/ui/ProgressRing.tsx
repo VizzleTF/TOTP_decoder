@@ -1,5 +1,7 @@
 import React from 'react'
 
+import clsx from 'clsx'
+
 interface ProgressRingProps {
   timeLeft: number
   period: number

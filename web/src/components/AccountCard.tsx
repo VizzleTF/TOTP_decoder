@@ -33,12 +33,12 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           </div>
           <div>
             <h3 className="text-xl font-semibold text-slate-800 mb-1">
-              {account.issuer || 'Unknown Service'}
+              {account.issuer || 'Service'}
             </h3>
             <p className="text-slate-600 font-medium">{account.account}</p>
             <div className="flex items-center mt-2 text-sm text-slate-500">
               <Clock className="w-4 h-4 mr-1" />
-              Updates every {account.period}s
+              Updates every {account.period || 30}s
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
         <div className="flex items-center space-x-3">
           <ProgressRing
             timeLeft={timeLeft}
-            period={account.period}
+            period={account.period || 30}
             size={48}
           />
         </div>
@@ -87,7 +87,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             Algorithm
           </label>
           <div className="text-lg font-semibold text-slate-800">
-            {account.algorithm}
+            {account.algorithm || 'SHA1'}
           </div>
         </div>
         <div className="bg-slate-50 rounded-xl p-4">
@@ -95,7 +95,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             Digits
           </label>
           <div className="text-lg font-semibold text-slate-800">
-            {account.digits}
+            {account.digits || 6}
           </div>
         </div>
       </div>
@@ -108,12 +108,12 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           </label>
           <div className="flex items-center space-x-3">
             <code className="flex-1 bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-xs break-all text-slate-600 font-mono">
-              {account.otpauthUrl}
+              {account.otpauthUrl || ''}
             </code>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onCopy(account.otpauthUrl, urlId)}
+              onClick={() => onCopy(account.otpauthUrl || '', urlId)}
               className="px-3 py-3"
             >
               {copiedId === urlId ? (

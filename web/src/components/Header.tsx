@@ -33,10 +33,6 @@ export const Header: React.FC = () => (
         <div className="w-2 h-2 bg-success-500 rounded-full mr-2 animate-pulse"></div>
         No Data Sent
       </div>
-      <div className="flex items-center">
-        <div className="w-2 h-2 bg-success-500 rounded-full mr-2 animate-pulse"></div>
-        Instant Processing
-      </div>
     </div>
   </div>
 )
