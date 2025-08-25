@@ -1,9 +1,9 @@
 export const ALGORITHM_MAP = {
-  0: 'SHA1',    // ALGORITHM_TYPE_UNSPECIFIED
-  1: 'SHA1',    // SHA1
-  2: 'SHA256',  // SHA256
-  3: 'SHA512',  // SHA512
-  4: 'SHA1'     // MD5 fallback to SHA1
+  0: 'SHA-1',    // ALGORITHM_TYPE_UNSPECIFIED
+  1: 'SHA-1',    // SHA1
+  2: 'SHA-256',  // SHA256
+  3: 'SHA-512',  // SHA512
+  4: 'SHA-1'     // MD5 fallback to SHA-1
 } as const
 
 export const DIGITS_MAP = {

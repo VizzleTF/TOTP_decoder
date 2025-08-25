@@ -19,7 +19,7 @@ export class StandardParser {
 
     const secret = urlObj.searchParams.get('secret')
     const issuerParam = urlObj.searchParams.get('issuer')
-    const algorithm = urlObj.searchParams.get('algorithm') || DEFAULT_ALGORITHM
+    const algorithm = urlObj.searchParams.get('algorithm') || 'SHA-1'
     const digits = parseInt(urlObj.searchParams.get('digits') || DEFAULT_DIGITS.toString())
     const period = parseInt(urlObj.searchParams.get('period') || DEFAULT_PERIOD.toString())
 

@@ -37,7 +37,7 @@ export function useTimer(accounts: TOTPAccount[]) {
         accounts.forEach(account => {
           account.currentCode = TOTPService.generate(
             account.secret,
-            account.algorithm || 'SHA1',
+            account.algorithm || 'SHA-1',
             account.digits || 6,
             account.period || 30
           )

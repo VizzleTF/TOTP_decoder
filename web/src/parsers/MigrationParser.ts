@@ -23,7 +23,7 @@ export class MigrationParser {
 
   private static createAccount(param: any): TOTPAccount {
     const secret = uint8ArrayToBase32(param.secret)
-    const algorithm = ALGORITHM_MAP[param.algorithm] || 'SHA1'
+    const algorithm = ALGORITHM_MAP[param.algorithm] || 'SHA-1'
     const digits = DIGITS_MAP[param.digits] || 6
     const period = DEFAULT_PERIOD // Migration doesn't include period
     

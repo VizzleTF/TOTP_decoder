@@ -4,18 +4,25 @@ import { DEFAULT_ALGORITHM, DEFAULT_DIGITS, DEFAULT_PERIOD } from '../utils/cons
 export class TOTPService {
   static generate(
     secret: string,
-    algorithm: string = DEFAULT_ALGORITHM,
+    algorithm: string = 'SHA-1',
     digits: number = DEFAULT_DIGITS,
     period: number = DEFAULT_PERIOD
   ): string {
     try {
+      // Normalize algorithm name for totp-generator
+      let normalizedAlgorithm = algorithm
+      if (algorithm === 'SHA1') normalizedAlgorithm = 'SHA-1'
+      if (algorithm === 'SHA256') normalizedAlgorithm = 'SHA-256'
+      if (algorithm === 'SHA512') normalizedAlgorithm = 'SHA-512'
+      
       const { otp } = TOTP.generate(secret, {
-        algorithm: algorithm as any,
+        algorithm: normalizedAlgorithm as any,
         digits,
         period
       })
       return otp
-    } catch {
+    } catch (error) {
+      console.error('TOTP generation failed:', error, { secret, algorithm, digits, period })
       return '000000'
     }
   }
