@@ -1,8 +1,7 @@
 import React from 'react'
-import { Shield, Copy, Check, Key } from 'lucide-react'
+import { Shield, Check, Key, Copy } from 'lucide-react'
 import { TOTPAccount } from '../types/core'
 import { Card } from './ui/Card'
-import { Button } from './ui/Button'
 import { ProgressRing } from './ui/ProgressRing'
 
 interface AccountCardProps {
@@ -40,39 +39,28 @@ export const AccountCard: React.FC<AccountCardProps> = ({
         </div>
         
         <div className="flex items-center space-x-4">
-          <ProgressRing
-            timeLeft={timeLeft}
-            period={account.period || 30}
-            size={56}
-          />
-        </div>
-      </div>
-
-      {/* TOTP Code Section */}
-      <div className="mb-8">
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4 flex items-center">
-          <Key className="w-5 h-5 mr-3" />
-          Current TOTP Code
-        </label>
-        <div className="flex items-center space-x-4">
-          <div className="flex-1 relative">
-            <code className="block w-full glass-card-strong px-8 py-6 rounded-2xl text-4xl font-bold text-center tracking-[0.4em] text-slate-800 dark:text-slate-100 shadow-soft">
-              {account.currentCode || '000000'}
-            </code>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse opacity-50 rounded-2xl"></div>
+          <div className="relative">
+            <div className="relative p-1 rounded-xl" style={{
+              background: `conic-gradient(from 0deg, ${
+                (timeLeft / (account.period || 30)) * 100 > 50 ? 'rgb(34, 197, 94)' :
+                (timeLeft / (account.period || 30)) * 100 > 25 ? 'rgb(234, 179, 8)' : 'rgb(239, 68, 68)'
+              } ${((timeLeft / (account.period || 30)) * 360)}deg, transparent ${((timeLeft / (account.period || 30)) * 360)}deg, transparent 360deg)`
+            }}>
+              <code 
+                className={`block glass-card px-6 py-4 rounded-lg text-2xl font-bold text-slate-800 dark:text-slate-100 font-mono tracking-wider cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 relative group`}
+                onClick={() => onCopy(account.currentCode || '000000', codeId)}
+              >
+                <span className="relative z-10">{account.currentCode || '000000'}</span>
+                <div className="absolute top-1 right-1 z-20">
+                  {copiedId === codeId ? (
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-slate-400 dark:text-slate-500 opacity-30 group-hover:opacity-100 transition-opacity" />
+                  )}
+                </div>
+              </code>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => onCopy(account.currentCode || '000000', codeId)}
-            className="px-5 py-6"
-          >
-            {copiedId === codeId ? (
-              <Check className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-            ) : (
-              <Copy className="w-6 h-6" />
-            )}
-          </Button>
         </div>
       </div>
 
@@ -82,22 +70,20 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">
             OTP Auth URL
           </label>
-          <div className="flex items-center space-x-4">
-            <code className="flex-1 glass-card px-5 py-4 rounded-xl text-xs break-all text-slate-600 dark:text-slate-300 font-mono">
-              {account.otpauthUrl}
-            </code>
-            <Button
-              variant="ghost"
-              size="sm"
+          <div className="relative">
+            <code 
+              className="block glass-card px-5 py-4 rounded-xl text-xs break-all text-slate-600 dark:text-slate-300 font-mono cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 relative group"
               onClick={() => onCopy(account.otpauthUrl || '', urlId)}
-              className="px-4 py-4"
             >
-              {copiedId === urlId ? (
-                <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              ) : (
-                <Copy className="w-5 h-5" />
-              )}
-            </Button>
+              {account.otpauthUrl}
+              <div className="absolute top-2 right-2">
+                {copiedId === urlId ? (
+                  <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                ) : (
+                  <Copy className="w-4 h-4 text-slate-400 dark:text-slate-500 opacity-30 group-hover:opacity-100 transition-opacity" />
+                )}
+              </div>
+            </code>
           </div>
         </div>
       )}

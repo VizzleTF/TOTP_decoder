@@ -68,15 +68,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onUpload, loading })
             )}
           </div>
 
-          <h3 className={clsx(
-            'text-2xl font-semibold mb-3 transition-colors duration-300',
-            {
-              'text-primary-700': isDragActive,
-              'text-slate-800': !isDragActive
-            }
-          )}>
-            {loading ? 'Processing...' : isDragActive ? 'Drop it here!' : 'Upload QR Code'}
-          </h3>
+
 
           <p className="text-slate-600 dark:text-slate-400 mb-6 text-lg leading-relaxed">
             {loading ? (

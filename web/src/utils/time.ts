@@ -3,7 +3,7 @@ export function getCurrentTimeStep(period: number = 30): number {
 }
 
 export function getTimeLeft(period: number = 30): number {
-  const now = Math.floor(Date.now() / 1000)
+  const now = Date.now() / 1000
   return period - (now % period)
 }
 

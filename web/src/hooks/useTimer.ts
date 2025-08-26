@@ -24,7 +24,7 @@ export function useTimer(accounts: TOTPAccount[]) {
       accounts.forEach((account, index) => {
         const timeLeft = getTimeLeft(account.period || 30)
         newTimers[index] = timeLeft
-        
+
         if (timeLeft === (account.period || 30)) {
           shouldUpdate = true
         }
@@ -43,7 +43,7 @@ export function useTimer(accounts: TOTPAccount[]) {
           )
         })
       }
-    }, 1000)
+    }, 50)
 
     return () => clearInterval(interval)
   }, [accounts])
