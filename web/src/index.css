@@ -15,19 +15,23 @@
   }
 
   body {
-    @apply antialiased transition-colors duration-300;
+    @apply antialiased transition-colors duration-500;
     background-attachment: fixed;
   }
 
   /* Light theme (default) */
   body {
-    @apply bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900;
+    @apply bg-gradient-to-br from-slate-50 via-white to-blue-50/30 text-slate-900;
   }
 
-  /* Dark theme */
+  /* Dark theme - premium colors */
   @media (prefers-color-scheme: dark) {
     body {
       @apply bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100;
+      background-image: 
+        radial-gradient(at 40% 20%, rgb(120, 119, 198, 0.3) 0px, transparent 50%),
+        radial-gradient(at 80% 0%, rgb(120, 119, 198, 0.2) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, rgb(59, 130, 246, 0.2) 0px, transparent 50%);
     }
   }
 
@@ -51,26 +55,19 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 dark:border-slate-700/20 shadow-xl shadow-slate-900/5 dark:shadow-slate-900/20;
+    @apply bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/30 dark:border-slate-700/30 shadow-xl shadow-slate-900/5 dark:shadow-slate-900/30;
   }
 
-  .glass-card-dark {
-    @apply bg-slate-900/70 backdrop-blur-xl border border-slate-700/20 shadow-xl shadow-slate-900/20;
+  .glass-card-strong {
+    @apply bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white/40 dark:border-slate-600/40 shadow-2xl shadow-slate-900/10 dark:shadow-slate-900/40;
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-slate-100 dark:via-slate-300 dark:to-slate-100 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-slate-100 dark:via-slate-200 dark:to-slate-100 bg-clip-text text-transparent;
   }
 
-  .gradient-border {
-    @apply relative overflow-hidden;
-  }
-
-  .gradient-border::before {
-    content: '';
-    @apply absolute inset-0 rounded-[inherit] p-[1px] bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700;
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: xor;
+  .gradient-text-primary {
+    @apply bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent;
   }
 
   .floating-animation {
@@ -91,6 +88,29 @@
 
   .scale-in {
     animation: scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ripple::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .ripple:active::before {
+    width: 300px;
+    height: 300px;
   }
 }
 
@@ -139,48 +159,4 @@
     opacity: 1;
     transform: scale(1);
   }
-}
-
-/* Gradient background animation */
-.animated-gradient {
-  background: linear-gradient(-45deg, #f8fafc, #ffffff, #f1f5f9, #e2e8f0);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-@media (prefers-color-scheme: dark) {
-  .animated-gradient {
-    background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #475569);
-    background-size: 400% 400%;
-    animation: gradient-shift 15s ease infinite;
-  }
-}
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Ripple effect */
-.ripple {
-  position: relative;
-  overflow: hidden;
-}
-
-.ripple::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.ripple:active::before {
-  width: 300px;
-  height: 300px;
 }

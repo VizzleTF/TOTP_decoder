@@ -17,17 +17,17 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       className={clsx(
-        'rounded-2xl transition-all duration-300',
+        'rounded-3xl transition-all duration-300',
         {
-          'bg-white dark:bg-slate-800 shadow-soft border border-slate-200/60 dark:border-slate-700/60': variant === 'default',
-          'bg-gradient-to-br from-success-50 to-success-100/50 dark:from-success-900/20 dark:to-success-800/20 border border-success-200/60 dark:border-success-700/60 shadow-soft': variant === 'success',
-          'bg-gradient-to-br from-error-50 to-error-100/50 dark:from-error-900/20 dark:to-error-800/20 border border-error-200/60 dark:border-error-700/60 shadow-soft': variant === 'error',
+          'glass-card-strong': variant === 'default',
+          'bg-gradient-to-br from-emerald-50/90 to-green-50/90 dark:from-emerald-900/30 dark:to-green-900/30 border border-emerald-200/60 dark:border-emerald-700/60 shadow-soft backdrop-blur-xl': variant === 'success',
+          'bg-gradient-to-br from-red-50/90 to-rose-50/90 dark:from-red-900/30 dark:to-rose-900/30 border border-red-200/60 dark:border-red-700/60 shadow-soft backdrop-blur-xl': variant === 'error',
           'glass-card': variant === 'glass'
         },
         {
-          'hover:shadow-medium hover:-translate-y-1 cursor-pointer': hover
+          'hover:shadow-large hover:-translate-y-1 cursor-pointer': hover
         },
-        'p-6',
+        'p-8',
         className
       )}
     >
