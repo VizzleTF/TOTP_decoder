@@ -16,7 +16,13 @@
     if (isRussian) {
       document.title = 'TOTP QR Декодер';
     }
+
+    // Dark theme detection and setup
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
   </script>
+
 </head>
 
 <body>

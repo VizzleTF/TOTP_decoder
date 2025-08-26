@@ -8,8 +8,8 @@ interface CardProps {
   hover?: boolean
 }
 
-export const Card: React.FC<CardProps> = ({ 
-  children, 
+export const Card: React.FC<CardProps> = ({
+  children,
   className,
   variant = 'default',
   hover = false
@@ -20,8 +20,7 @@ export const Card: React.FC<CardProps> = ({
         'rounded-3xl transition-all duration-300',
         {
           'glass-card-strong': variant === 'default',
-          'bg-gradient-to-br from-emerald-50/90 to-green-50/90 dark:from-emerald-900/30 dark:to-green-900/30 border border-emerald-200/60 dark:border-emerald-700/60 shadow-soft backdrop-blur-xl': variant === 'success',
-          'bg-gradient-to-br from-red-50/90 to-rose-50/90 dark:from-red-900/30 dark:to-rose-900/30 border border-red-200/60 dark:border-red-700/60 shadow-soft backdrop-blur-xl': variant === 'error',
+          'bg-gradient-to-br from-emerald-50/90 to-green-50/90 dark:from-slate-800/90 dark:to-slate-700/90 border border-emerald-200/60 dark:border-slate-600/60 shadow-soft backdrop-blur-xl': variant === 'success', 'bg-gradient-to-br from-red-50/90 to-rose-50/90 dark:from-red-900/30 dark:to-rose-900/30 border border-red-200/60 dark:border-red-700/60 shadow-soft backdrop-blur-xl': variant === 'error',
           'glass-card': variant === 'glass'
         },
         {

@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "A modern, fully client-side web application for decoding TOTP QR codes",
   "scripts": {
-    "build": "npm run build",
-    "dev": "npm run dev",
-    "preview": "npm run preview"
+    "build": "cd web && npm run build",
+    "dev": "cd web && npm run dev",
+    "preview": "cd web && npm run preview",
+    "install": "cd web && npm install"
   },
   "keywords": [
     "totp",
