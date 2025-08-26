@@ -17,14 +17,14 @@ export const Header: React.FC = () => (
       TOTP QR Decoder
     </h1>
     
-    <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-light">
+    <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-light">
       Decode your authenticator QR codes with{' '}
       <span className="font-medium text-primary-600">military-grade security</span>{' '}
       and{' '}
       <span className="font-medium text-primary-600">zero data transmission</span>
     </p>
     
-    <div className="flex items-center justify-center mt-6 space-x-6 text-sm text-slate-500">
+    <div className="flex items-center justify-center mt-6 space-x-6 text-sm text-slate-500 dark:text-slate-400">
       <div className="flex items-center">
         <div className="w-2 h-2 bg-success-500 rounded-full mr-2 animate-pulse"></div>
         100% Client-Side

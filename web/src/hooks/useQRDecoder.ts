@@ -17,6 +17,17 @@ export function useQRDecoder() {
     try {
       const result = await decoder.decode(file)
       setResult(result)
+      
+      // Автоскролл к результатам
+      setTimeout(() => {
+        const resultsSection = document.getElementById('results-section')
+        if (resultsSection) {
+          resultsSection.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          })
+        }
+      }, 100)
     } catch (err) {
       setError(err as AppError)
     } finally {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Shield, Copy, CheckCircle, Clock, Key } from 'lucide-react'
+import { Shield, Copy, Check, Key } from 'lucide-react'
 import { TOTPAccount } from '../types/core'
 import { Card } from './ui/Card'
 import { Button } from './ui/Button'
@@ -32,14 +32,10 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold text-slate-800 mb-1">
+            <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-1">
               {account.issuer || 'Service'}
             </h3>
-            <p className="text-slate-600 font-medium">{account.account}</p>
-            <div className="flex items-center mt-2 text-sm text-slate-500">
-              <Clock className="w-4 h-4 mr-1" />
-              Updates every {account.period || 30}s
-            </div>
+            <p className="text-slate-600 dark:text-slate-400 font-medium">{account.account}</p>
           </div>
         </div>
         
@@ -54,13 +50,13 @@ export const AccountCard: React.FC<AccountCardProps> = ({
 
       {/* TOTP Code Section */}
       <div className="mb-6">
-        <label className="block text-sm font-semibold text-slate-700 mb-3 flex items-center">
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center">
           <Key className="w-4 h-4 mr-2" />
           Current TOTP Code
         </label>
         <div className="flex items-center space-x-3">
           <div className="flex-1 relative">
-            <code className="block w-full bg-gradient-to-r from-slate-50 to-slate-100 border-2 border-slate-200 px-6 py-4 rounded-xl text-3xl font-bold text-center tracking-[0.3em] text-slate-800 shadow-soft">
+            <code className="block w-full bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-2 border-slate-200 dark:border-slate-600 px-6 py-4 rounded-xl text-3xl font-bold text-center tracking-[0.3em] text-slate-800 dark:text-slate-200 shadow-soft">
               {account.currentCode}
             </code>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse opacity-50 rounded-xl"></div>
@@ -72,7 +68,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             className="px-4 py-4"
           >
             {copiedId === codeId ? (
-              <CheckCircle className="w-5 h-5 text-success-600" />
+              <Check className="w-5 h-5 text-success-600" />
             ) : (
               <Copy className="w-5 h-5" />
             )}
@@ -80,34 +76,14 @@ export const AccountCard: React.FC<AccountCardProps> = ({
         </div>
       </div>
 
-      {/* Details Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-slate-50 rounded-xl p-4">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-            Algorithm
-          </label>
-          <div className="text-lg font-semibold text-slate-800">
-            {account.algorithm || 'SHA1'}
-          </div>
-        </div>
-        <div className="bg-slate-50 rounded-xl p-4">
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-            Digits
-          </label>
-          <div className="text-lg font-semibold text-slate-800">
-            {account.digits || 6}
-          </div>
-        </div>
-      </div>
-
       {/* OTP Auth URL */}
       {account.otpauthUrl && (
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-3">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
             OTP Auth URL
           </label>
           <div className="flex items-center space-x-3">
-            <code className="flex-1 bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-xs break-all text-slate-600 font-mono">
+            <code className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 px-4 py-3 rounded-xl text-xs break-all text-slate-600 dark:text-slate-400 font-mono">
               {account.otpauthUrl || ''}
             </code>
             <Button
@@ -117,7 +93,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
               className="px-3 py-3"
             >
               {copiedId === urlId ? (
-                <CheckCircle className="w-4 h-4 text-success-600" />
+                <Check className="w-4 h-4 text-success-600" />
               ) : (
                 <Copy className="w-4 h-4" />
               )}

@@ -25,7 +25,7 @@ export const Loading: React.FC<LoadingProps> = ({ loading }) => {
         Decoding QR Code
       </h3>
       
-      <p className="text-slate-600 mb-4">
+      <p className="text-slate-600 dark:text-slate-400 mb-4">
         Analyzing your image with advanced algorithms...
       </p>
       

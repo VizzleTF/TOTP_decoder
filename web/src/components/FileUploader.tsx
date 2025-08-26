@@ -78,7 +78,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onUpload, loading })
             {loading ? 'Processing...' : isDragActive ? 'Drop it here!' : 'Upload QR Code'}
           </h3>
 
-          <p className="text-slate-600 mb-6 text-lg leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 mb-6 text-lg leading-relaxed">
             {loading ? (
               'Decoding your QR code with precision...'
             ) : isDragActive ? (
@@ -88,7 +88,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onUpload, loading })
             )}
           </p>
 
-          <div className="flex items-center justify-center space-x-8 text-sm text-slate-500">
+          <div className="flex items-center justify-center space-x-8 text-sm text-slate-500 dark:text-slate-400">
             <div className="flex items-center">
               <Image className="w-4 h-4 mr-2" />
               PNG, JPG, WebP
@@ -99,7 +99,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onUpload, loading })
             </div>
           </div>
 
-          <div className="mt-6 text-xs text-slate-400">
+          <div className="mt-6 text-xs text-slate-400 dark:text-slate-500">
             💡 Pro tip: You can also paste images with <kbd className="px-2 py-1 bg-slate-100 rounded font-mono">Ctrl+V</kbd>
           </div>
         </div>
