@@ -1,5 +1,6 @@
 import React from 'react'
 import { QrCode, Sparkles } from 'lucide-react'
+import { Trans } from 'react-i18next'
 import { useI18n } from '../hooks/useI18n'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
@@ -33,10 +34,17 @@ const HeaderContent: React.FC = () => {
     </h1>
     
     <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
-      {t('app.description', {
-        security: <span className="font-semibold text-blue-600 dark:text-blue-400">{t('app.security')}</span>,
-        privacy: <span className="font-semibold text-purple-600 dark:text-purple-400">{t('app.privacy')}</span>
-      })}
+      <Trans
+        i18nKey="app.description"
+        components={{
+          security: <span className="font-semibold text-blue-600 dark:text-blue-400" />,
+          privacy: <span className="font-semibold text-purple-600 dark:text-purple-400" />
+        }}
+        values={{
+          security: t('app.security'),
+          privacy: t('app.privacy')
+        }}
+      />
     </p>
     
     <div className="flex items-center justify-center mt-8 space-x-8 text-sm text-slate-500 dark:text-slate-400">

@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "TOTP QR Декодер",
-    "description": "Декодируйте QR-коды аутентификатора с {{security}} и {{privacy}}",
+    "description": "Декодируйте QR-коды аутентификатора с <security>{{security}}</security> и <privacy>{{privacy}}</privacy>",
     "security": "военным уровнем безопасности",
     "privacy": "нулевой передачей данных"
   },
