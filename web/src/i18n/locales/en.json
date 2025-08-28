@@ -1,0 +1,63 @@
+{
+  "app": {
+    "title": "TOTP QR Decoder",
+    "description": "Decode your authenticator QR codes with {{security}} and {{privacy}}",
+    "security": "military-grade security",
+    "privacy": "zero data transmission"
+  },
+  "header": {
+    "clientSide": "100% Client-Side",
+    "noDataSent": "No Data Sent"
+  },
+  "uploader": {
+    "title": "Drag & drop your QR code image or click to browse",
+    "processing": "Decoding your QR code with precision...",
+    "dragActive": "Release to decode your QR code instantly",
+    "supportedFormats": "PNG, JPG, WebP",
+    "instantProcessing": "Instant Processing",
+    "tip": "Pro tip: You can also paste images with",
+    "supportedTypes": "Supported: PNG, JPG, JPEG, GIF, BMP, WebP"
+  },
+  "results": {
+    "title": "Successfully Decoded!",
+    "found": "Found {{count}} account from your {{type}}",
+    "found_plural": "Found {{count}} accounts from your {{type}}",
+    "standardTotp": "Standard TOTP",
+    "migrationQr": "Migration QR Code",
+    "generating": "All codes are generating securely"
+  },
+  "account": {
+    "service": "Service",
+    "otpAuthUrl": "OTP Auth URL",
+    "copyCode": "Copy code",
+    "copyUrl": "Copy URL"
+  },
+  "status": {
+    "decoding": "Decoding QR Code",
+    "analyzing": "Analyzing your image with advanced algorithms...",
+    "failed": "Decoding Failed",
+    "tip": "Make sure your image contains a clear QR code and try again."
+  },
+  "footer": {
+    "madeWith": "Made with precision and care for your security",
+    "viewSource": "View Source"
+  },
+  "clipboard": {
+    "copied": "Copied!",
+    "failed": "Failed to copy"
+  },
+  "errors": {
+    "noQrFound": "No QR code found in image",
+    "unsupportedFormat": "Unsupported QR code format",
+    "failedToProcess": "Failed to process file",
+    "noSecret": "Secret not found in URL",
+    "noData": "No data parameter in migration URL",
+    "failedToLoad": "Failed to load image",
+    "canvasNotAvailable": "Canvas context not available"
+  },
+  "language": {
+    "switch": "Switch language",
+    "english": "English",
+    "russian": "Русский"
+  }
+}

@@ -1,9 +1,18 @@
+import { TFunction } from 'react-i18next'
+
 export class ClipboardService {
-    static async copy(text: string): Promise<boolean> {
+    static async copy(text: string, t?: TFunction): Promise<boolean> {
         try {
             await navigator.clipboard.writeText(text)
+            if (t) {
+                // Could show toast notification here
+                console.log(t('clipboard.copied'))
+            }
             return true
         } catch {
+            if (t) {
+                console.error(t('clipboard.failed'))
+            }
             return false
         }
     }

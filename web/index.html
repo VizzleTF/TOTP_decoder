@@ -9,17 +9,25 @@
   <script>
     // Detect browser language and set html lang attribute
     const userLang = navigator.language || navigator.userLanguage;
-    const isRussian = userLang.startsWith('ru');
-    document.documentElement.lang = isRussian ? 'ru' : 'en';
+    const supportedLangs = ['en', 'ru'];
+    const detectedLang = userLang.substring(0, 2);
+    const lang = supportedLangs.includes(detectedLang) ? detectedLang : 'en';
+    document.documentElement.lang = lang;
 
     // Update title based on language
-    if (isRussian) {
+    if (lang === 'ru') {
       document.title = 'TOTP QR Декодер';
     }
 
     // Dark theme detection and setup
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       document.documentElement.classList.add('dark');
+    }
+
+    // Set RTL direction for RTL languages
+    const rtlLanguages = ['ar', 'he', 'fa', 'ur'];
+    if (rtlLanguages.includes(lang)) {
+      document.documentElement.dir = 'rtl';
     }
   </script>
 

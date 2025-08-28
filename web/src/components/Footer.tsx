@@ -1,7 +1,11 @@
 import React from 'react'
 import { Github, ExternalLink } from 'lucide-react'
+import { useI18n } from '../hooks/useI18n'
 
-export const Footer: React.FC = () => (
+export const Footer: React.FC = () => {
+  const { t } = useI18n()
+  
+  return (
   <footer className="mt-24 pt-12 border-t border-slate-200/60 dark:border-slate-700/50">
     <div className="text-center fade-in">
       <div className="flex items-center justify-center space-x-8 mb-6">
@@ -29,8 +33,9 @@ export const Footer: React.FC = () => (
       </div>
       
       <p className="text-sm text-slate-500 dark:text-slate-400">
-        Made with precision and care for your security
+        {t('footer.madeWith')}
       </p>
     </div>
   </footer>
-)
+  )
+}

@@ -4,6 +4,7 @@ import { Upload, Image, Zap } from 'lucide-react'
 import clsx from 'clsx'
 import { Card } from './ui/Card'
 import { SUPPORTED_IMAGE_TYPES } from '../utils/constants'
+import { useI18n } from '../hooks/useI18n'
 
 interface FileUploaderProps {
   onUpload: (file: File) => void
@@ -11,6 +12,8 @@ interface FileUploaderProps {
 }
 
 export const FileUploader: React.FC<FileUploaderProps> = ({ onUpload, loading }) => {
+  const { t } = useI18n()
+  
   const onDrop = useCallback((files: File[]) => {
     if (files[0]) onUpload(files[0])
   }, [onUpload])
@@ -72,27 +75,27 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onUpload, loading })
 
           <p className="text-slate-600 dark:text-slate-400 mb-6 text-lg leading-relaxed">
             {loading ? (
-              'Decoding your QR code with precision...'
+              t('uploader.processing')
             ) : isDragActive ? (
-              'Release to decode your QR code instantly'
+              t('uploader.dragActive')
             ) : (
-              'Drag & drop your QR code image or click to browse'
+              t('uploader.title')
             )}
           </p>
 
           <div className="flex items-center justify-center space-x-8 text-sm text-slate-500 dark:text-slate-400">
             <div className="flex items-center">
               <Image className="w-4 h-4 mr-2" />
-              PNG, JPG, WebP
+              {t('uploader.supportedFormats')}
             </div>
             <div className="flex items-center">
               <Zap className="w-4 h-4 mr-2" />
-              Instant Processing
+              {t('uploader.instantProcessing')}
             </div>
           </div>
 
           <div className="mt-6 text-xs text-slate-400 dark:text-slate-500">
-            💡 Pro tip: You can also paste images with <kbd className="px-2 py-1 bg-slate-100 rounded font-mono">Ctrl+V</kbd>
+            💡 {t('uploader.tip')} <kbd className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded font-mono">Ctrl+V</kbd>
           </div>
         </div>
       </Card>

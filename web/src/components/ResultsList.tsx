@@ -3,6 +3,7 @@ import { Sparkles, Users, Smartphone } from 'lucide-react'
 import { DecodingResult, TimerState } from '../types/core'
 import { Card } from './ui/Card'
 import { AccountCard } from './AccountCard'
+import { useI18n } from '../hooks/useI18n'
 
 interface ResultsListProps {
   result: DecodingResult
@@ -17,6 +18,8 @@ export const ResultsList: React.FC<ResultsListProps> = ({
   copiedId,
   onCopy
 }) => {
+  const { t } = useI18n()
+  
   if (!result.accounts.length) return null
 
   const getTypeIcon = () => {
@@ -24,7 +27,7 @@ export const ResultsList: React.FC<ResultsListProps> = ({
   }
 
   const getTypeLabel = () => {
-    return result.type === 'migration' ? 'Migration QR Code' : 'Standard TOTP'
+    return result.type === 'migration' ? t('results.migrationQr') : t('results.standardTotp')
   }
 
   const TypeIcon = getTypeIcon()
@@ -43,17 +46,19 @@ export const ResultsList: React.FC<ResultsListProps> = ({
         </div>
         
         <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-3">
-          Successfully Decoded!
+          {t('results.title')}
         </h2>
         
         <p className="text-slate-600 dark:text-slate-300 mb-6 text-lg">
-          Found <span className="font-semibold text-blue-600 dark:text-blue-400">{result.accounts.length}</span> account
-          {result.accounts.length !== 1 ? 's' : ''} from your <span className="font-semibold">{getTypeLabel()}</span>
+          {t('results.found', { 
+            count: result.accounts.length, 
+            type: getTypeLabel() 
+          })}
         </p>
         
         <div className="inline-flex items-center px-6 py-3 bg-emerald-100/80 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 rounded-full text-sm font-medium backdrop-blur-sm">
           <Sparkles className="w-4 h-4 mr-2" />
-          All codes are generating securely
+          {t('results.generating')}
         </div>
       </Card>
 

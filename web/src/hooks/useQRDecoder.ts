@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { DecodingResult, AppError } from '../types/core'
 import { QRDecoder } from '../core/QRDecoder'
+import { getErrorMessage } from '../utils/errorMessages'
 
 export function useQRDecoder() {
   const [result, setResult] = useState<DecodingResult | null>(null)
@@ -29,7 +30,11 @@ export function useQRDecoder() {
         }
       }, 100)
     } catch (err) {
-      setError(err as AppError)
+      const error = err as AppError
+      setError({
+        ...error,
+        message: getErrorMessage(error.message)
+      })
     } finally {
       setLoading(false)
     }

@@ -2,12 +2,15 @@ import React from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { AppError } from '../types/core'
 import { Card } from './ui/Card'
+import { useI18n } from '../hooks/useI18n'
 
 interface LoadingProps {
   loading: boolean
 }
 
 export const Loading: React.FC<LoadingProps> = ({ loading }) => {
+  const { t } = useI18n()
+  
   if (!loading) return null
 
   return (
@@ -22,11 +25,11 @@ export const Loading: React.FC<LoadingProps> = ({ loading }) => {
       </div>
       
       <h3 className="text-xl font-semibold text-slate-800 mb-2">
-        Decoding QR Code
+        {t('status.decoding')}
       </h3>
       
       <p className="text-slate-600 dark:text-slate-400 mb-4">
-        Analyzing your image with advanced algorithms...
+        {t('status.analyzing')}
       </p>
       
       <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
@@ -43,6 +46,8 @@ interface ErrorProps {
 }
 
 export const Error: React.FC<ErrorProps> = ({ error }) => {
+  const { t } = useI18n()
+  
   if (!error) return null
 
   return (
@@ -53,14 +58,14 @@ export const Error: React.FC<ErrorProps> = ({ error }) => {
         </div>
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-error-800 mb-2">
-            Decoding Failed
+            {t('status.failed')}
           </h3>
           <p className="text-error-700 leading-relaxed">
             {error.message}
           </p>
           <div className="mt-4 p-3 bg-error-50 rounded-lg border border-error-200">
             <p className="text-sm text-error-600">
-              💡 <strong>Tip:</strong> Make sure your image contains a clear QR code and try again.
+              💡 <strong>Tip:</strong> {t('status.tip')}
             </p>
           </div>
         </div>

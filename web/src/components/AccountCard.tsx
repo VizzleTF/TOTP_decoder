@@ -3,6 +3,7 @@ import { Shield, Check, Key, Copy } from 'lucide-react'
 import { TOTPAccount } from '../types/core'
 import { Card } from './ui/Card'
 import { ProgressRing } from './ui/ProgressRing'
+import { useI18n } from '../hooks/useI18n'
 
 interface AccountCardProps {
   account: TOTPAccount
@@ -19,6 +20,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   onCopy,
   index
 }) => {
+  const { t } = useI18n()
   const codeId = `code-${index}`
   const urlId = `url-${index}`
 
@@ -32,7 +34,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           </div>
           <div>
             <h3 className="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
-              {account.issuer || 'Service'}
+              {account.issuer || t('account.service')}
             </h3>
             <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">{account.account}</p>
           </div>
@@ -68,7 +70,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
       {account.otpauthUrl && (
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">
-            OTP Auth URL
+            {t('account.otpAuthUrl')}
           </label>
           <div className="relative">
             <code 

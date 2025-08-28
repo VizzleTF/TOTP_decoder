@@ -1,8 +1,23 @@
 import React from 'react'
 import { QrCode, Sparkles } from 'lucide-react'
+import { useI18n } from '../hooks/useI18n'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export const Header: React.FC = () => (
-  <div className="text-center mb-20 fade-in">
+  <div className="mb-20 fade-in">
+    <div className="flex justify-end mb-8">
+      <LanguageSwitcher />
+    </div>
+    
+    <HeaderContent />
+  </div>
+)
+
+const HeaderContent: React.FC = () => {
+  const { t } = useI18n()
+  
+  return (
+    <div className="text-center">
     <div className="flex items-center justify-center mb-8 floating-animation">
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur-xl opacity-40"></div>
@@ -14,25 +29,26 @@ export const Header: React.FC = () => (
     </div>
     
     <h1 className="text-6xl md:text-7xl font-bold mb-6 gradient-text-primary leading-tight">
-      TOTP QR Decoder
+      {t('app.title')}
     </h1>
     
     <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
-      Decode your authenticator QR codes with{' '}
-      <span className="font-semibold text-blue-600 dark:text-blue-400">military-grade security</span>{' '}
-      and{' '}
-      <span className="font-semibold text-purple-600 dark:text-purple-400">zero data transmission</span>
+      {t('app.description', {
+        security: <span className="font-semibold text-blue-600 dark:text-blue-400">{t('app.security')}</span>,
+        privacy: <span className="font-semibold text-purple-600 dark:text-purple-400">{t('app.privacy')}</span>
+      })}
     </p>
     
     <div className="flex items-center justify-center mt-8 space-x-8 text-sm text-slate-500 dark:text-slate-400">
       <div className="flex items-center">
         <div className="w-2 h-2 bg-emerald-500 rounded-full mr-3 animate-pulse"></div>
-        100% Client-Side
+        {t('header.clientSide')}
       </div>
       <div className="flex items-center">
         <div className="w-2 h-2 bg-emerald-500 rounded-full mr-3 animate-pulse"></div>
-        No Data Sent
+        {t('header.noDataSent')}
       </div>
     </div>
-  </div>
-)
+    </div>
+  )
+}
