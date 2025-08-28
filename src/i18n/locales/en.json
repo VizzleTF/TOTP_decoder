@@ -1,0 +1,8 @@
+@@ .. @@
+   "app": {
+     "title": "TOTP QR Decoder",
+-    "description": "Decode your authenticator QR codes with {{security}} and {{privacy}}",
++    "description": "Decode your authenticator QR codes with {{security}} and {{privacy}}",
+     "security": "military-grade security",
+     "privacy": "zero data transmission"
+   },
