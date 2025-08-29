@@ -1,4 +1,6 @@
-# TOTP QR Code Decoder
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/VizzleTF/totp_decoder)
+
+# TOTP QR Code Decoder 
 
 A modern, fully client-side web application for decoding TOTP (Time-based One-Time Password) QR codes from images. Everything runs securely in your browser!
 
