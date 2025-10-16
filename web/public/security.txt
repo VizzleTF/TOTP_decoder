@@ -1,0 +1,8 @@
+Contact: mailto:security@vakaf.space
+Expires: 2026-01-27T00:00:00.000Z
+Preferred-Languages: en, ru
+Canonical: https://totp-decoder.vakaf.space/.well-known/security.txt
+
+# Security Policy
+# Please report security vulnerabilities to the contact above.
+# We appreciate responsible disclosure and will respond promptly.
