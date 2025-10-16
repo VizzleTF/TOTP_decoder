@@ -1,4 +1,5 @@
 import React from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { useQRDecoder } from './hooks/useQRDecoder'
 import { useTimer } from './hooks/useTimer'
 import { useClipboard } from './hooks/useClipboard'
@@ -32,6 +33,7 @@ export default function App() {
       <div className="max-w-4xl mx-auto px-6">
         <Footer />
       </div>
+      <Analytics />
     </div>
   )
 }
