@@ -1,18 +1,18 @@
-import React from 'react'
-import { Analytics } from '@vercel/analytics/react'
-import { useQRDecoder } from './hooks/useQRDecoder'
-import { useTimer } from './hooks/useTimer'
-import { useClipboard } from './hooks/useClipboard'
-import { Header } from './components/Header'
-import { Footer } from './components/Footer'
-import { FileUploader } from './components/FileUploader'
-import { ResultsList } from './components/ResultsList'
-import { Loading, Error } from './components/StatusMessage'
+import { Analytics } from "@vercel/analytics/react";
+import { useQRDecoder } from "./hooks/useQRDecoder";
+import { useTimer } from "./hooks/useTimer";
+import { useClipboard } from "./hooks/useClipboard";
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
+import { FileUploader } from "./components/FileUploader";
+import { ResultsList } from "./components/ResultsList";
+import { Loading, Error } from "./components/StatusMessage";
 
 export default function App() {
-  const { result, loading, error, decode } = useQRDecoder()
-  const timers = useTimer(result?.accounts || [])
-  const { copiedId, copy } = useClipboard(decode)
+  const { result, loading, error, decode, updateAccounts, resultsRef } =
+    useQRDecoder();
+  const timers = useTimer(result?.accounts || [], updateAccounts);
+  const { copiedId, copy } = useClipboard(decode);
 
   return (
     <div className="min-h-screen animated-gradient">
@@ -23,6 +23,7 @@ export default function App() {
         <Error error={error} />
         {result && (
           <ResultsList
+            ref={resultsRef}
             result={result}
             timers={timers}
             copiedId={copiedId}
@@ -35,5 +36,5 @@ export default function App() {
       </div>
       <Analytics />
     </div>
-  )
+  );
 }
