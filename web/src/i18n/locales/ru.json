@@ -1,49 +1,51 @@
 {
   "app": {
     "title": "TOTP QR Декодер",
-    "description": "Декодируйте QR-коды аутентификатора с <security>{{security}}</security> и <privacy>{{privacy}}</privacy>",
-    "security": "военным уровнем безопасности",
-    "privacy": "нулевой передачей данных"
+    "description": "Декодируйте QR-коды аутентификатора в живые одноразовые пароли. <privacy>{{privacy}}</privacy> — <security>{{security}}</security>.",
+    "security": "ничего не загружается на сервер",
+    "privacy": "Всё работает в вашем браузере"
   },
   "header": {
-    "clientSide": "100% Клиентская Сторона",
-    "noDataSent": "Данные Не Передаются"
+    "clientSide": "Локально в браузере",
+    "noDataSent": "Данные не отправляются"
   },
   "uploader": {
     "title": "Перетащите изображение QR-кода или нажмите для выбора",
-    "processing": "Декодируем ваш QR-код с точностью...",
-    "dragActive": "Отпустите для мгновенного декодирования QR-кода",
-    "supportedFormats": "PNG, JPG, WebP",
-    "instantProcessing": "Мгновенная Обработка",
-    "tip": "Совет: Вы также можете вставить изображения с помощью",
+    "processing": "Декодируем…",
+    "dragActive": "Отпустите для декодирования",
+    "supportedFormats": "PNG · JPG · WebP",
+    "instantProcessing": "Мгновенная обработка",
+    "tip": "или вставьте QR, otpauth:// или Base32 через",
     "supportedTypes": "Поддерживается: PNG, JPG, JPEG, GIF, BMP, WebP"
   },
   "results": {
-    "title": "Успешно Декодировано!",
+    "title": "Декодировано",
     "found": "Найден {{count}} аккаунт из вашего {{type}}",
     "found_plural": "Найдено {{count}} аккаунтов из вашего {{type}}",
-    "standardTotp": "Стандартного TOTP",
-    "migrationQr": "Миграционного QR-кода",
-    "generating": "Все коды генерируются безопасно"
+    "standardTotp": "Стандартный TOTP",
+    "migrationQr": "Миграционный QR",
+    "generating": "Коды генерируются локально"
   },
   "account": {
     "service": "Сервис",
     "otpAuthUrl": "OTP Auth URL",
+    "secret": "Base32-секрет",
     "copyCode": "Копировать код",
-    "copyUrl": "Копировать URL"
+    "copyUrl": "Копировать URL",
+    "copySecret": "Копировать секрет"
   },
   "status": {
-    "decoding": "Декодирование QR-кода",
-    "analyzing": "Анализируем ваше изображение с помощью продвинутых алгоритмов...",
-    "failed": "Декодирование Не Удалось",
-    "tip": "Убедитесь, что ваше изображение содержит четкий QR-код и попробуйте снова."
+    "decoding": "Декодируем QR-код…",
+    "analyzing": "Читаем изображение…",
+    "failed": "Не удалось декодировать",
+    "tip": "Убедитесь, что изображение содержит чёткий QR-код, и попробуйте снова."
   },
   "footer": {
-    "madeWith": "Создано с точностью и заботой о вашей безопасности",
-    "viewSource": "Исходный Код"
+    "madeWith": "Только в браузере · Открытый код",
+    "viewSource": "Исходники"
   },
   "clipboard": {
-    "copied": "Скопировано!",
+    "copied": "Скопировано",
     "failed": "Не удалось скопировать"
   },
   "errors": {

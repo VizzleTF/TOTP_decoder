@@ -1,41 +1,38 @@
 import React from 'react'
-import { Github, ExternalLink } from 'lucide-react'
 import { useI18n } from '../hooks/useI18n'
 
 export const Footer: React.FC = () => {
   const { t } = useI18n()
-  
+
   return (
-  <footer className="mt-24 pt-12 border-t border-slate-200/60 dark:border-slate-700/50">
-    <div className="text-center fade-in">
-      <div className="flex items-center justify-center space-x-8 mb-6">
+    <footer className="mt-24 flex items-center justify-between border-t border-line py-8 font-mono text-xs text-ink-subtle">
+      <span>{t('footer.madeWith')}</span>
+      <div className="flex items-center gap-5">
         <a
-          href="https://github.com/VizzleTF"
+          href="https://www.buymeacoffee.com/vizzletf"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center space-x-3 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group"
+          className="transition-colors duration-150 hover:text-ink"
         >
-          <Github className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
-          <span className="font-medium">VizzleTF</span>
+          Coffee
         </a>
-        
-        <div className="w-px h-6 bg-slate-300 dark:bg-slate-600"></div>
-        
+        <a
+          href="https://boosty.to/vizzletf/donate"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors duration-150 hover:text-ink"
+        >
+          Boosty
+        </a>
         <a
           href="https://github.com/VizzleTF/TOTP_decoder"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center space-x-3 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group"
+          className="transition-colors duration-150 hover:text-ink"
         >
-          <ExternalLink className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-          <span className="text-sm font-medium">View Source</span>
+          {t('footer.viewSource')}
         </a>
       </div>
-      
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        {t('footer.madeWith')}
-      </p>
-    </div>
-  </footer>
+    </footer>
   )
 }

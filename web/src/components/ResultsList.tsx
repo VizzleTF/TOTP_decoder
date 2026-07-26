@@ -1,7 +1,5 @@
-import React, { forwardRef } from "react";
-import { Sparkles, Users, Smartphone } from "lucide-react";
+import { forwardRef } from "react";
 import { DecodingResult, TimerState } from "../types/core";
-import { Card } from "./ui/Card";
 import { AccountCard } from "./AccountCard";
 import { useI18n } from "../hooks/useI18n";
 
@@ -18,50 +16,25 @@ export const ResultsList = forwardRef<HTMLDivElement, ResultsListProps>(
 
     if (!result.accounts.length) return null;
 
-    const getTypeIcon = () => {
-      return result.type === "migration" ? Users : Smartphone;
-    };
-
-    const getTypeLabel = () => {
-      return result.type === "migration"
+    const typeLabel =
+      result.type === "migration"
         ? t("results.migrationQr")
         : t("results.standardTotp");
-    };
-
-    const TypeIcon = getTypeIcon();
 
     return (
-      <div className="slide-up" ref={ref}>
-        {/* Results Header */}
-        <Card className="mb-12 text-center" variant="glass">
-          <div className="flex items-center justify-center mb-6">
-            <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-4 rounded-2xl shadow-soft mr-5">
-              <Sparkles className="w-7 h-7 text-white" />
-            </div>
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-2xl shadow-soft">
-              <TypeIcon className="w-7 h-7 text-white" />
-            </div>
-          </div>
-
-          <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-3">
+      <section ref={ref} className="mb-16">
+        <div className="reveal mb-4 flex items-baseline justify-between">
+          <h2 className="font-mono text-xs uppercase tracking-[0.08em] text-ink-subtle">
             {t("results.title")}
           </h2>
+          <span className="font-mono text-xs tabular-nums text-ink-subtle">
+            {result.accounts.length}
+            <span className="mx-2 text-line-strong">/</span>
+            {typeLabel}
+          </span>
+        </div>
 
-          <p className="text-slate-600 dark:text-slate-300 mb-6 text-lg">
-            {t("results.found", {
-              count: result.accounts.length,
-              type: getTypeLabel(),
-            })}
-          </p>
-
-          <div className="inline-flex items-center px-6 py-3 bg-emerald-100/80 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 rounded-full text-sm font-medium backdrop-blur-sm">
-            <Sparkles className="w-4 h-4 mr-2" />
-            {t("results.generating")}
-          </div>
-        </Card>
-
-        {/* Account Cards */}
-        <div className="space-y-8">
+        <div className="space-y-4">
           {result.accounts.map((account, index) => (
             <AccountCard
               key={index}
@@ -73,7 +46,9 @@ export const ResultsList = forwardRef<HTMLDivElement, ResultsListProps>(
             />
           ))}
         </div>
-      </div>
+      </section>
     );
   },
 );
+
+ResultsList.displayName = "ResultsList";

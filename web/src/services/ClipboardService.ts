@@ -30,10 +30,23 @@ export class ClipboardService {
         return null
     }
 
-    static setupPasteListener(callback: (file: File) => void): () => void {
+    static setupPasteListener(
+        onFile: (file: File) => void,
+        onText?: (text: string) => void
+    ): () => void {
         const handler = async (e: ClipboardEvent) => {
+            // Let native paste work inside form fields
+            const el = document.activeElement
+            if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return
+
             const file = await this.handlePaste(e)
-            if (file) callback(file)
+            if (file) {
+                onFile(file)
+                return
+            }
+
+            const text = e.clipboardData?.getData('text/plain')?.trim()
+            if (text && onText) onText(text)
         }
 
         document.addEventListener('paste', handler)

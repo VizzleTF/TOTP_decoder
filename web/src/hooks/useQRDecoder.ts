@@ -11,14 +11,14 @@ export function useQRDecoder() {
 
   const decoder = useMemo(() => new QRDecoder(), []);
 
-  const decode = useCallback(
-    async (file: File) => {
+  const run = useCallback(
+    async (task: () => Promise<DecodingResult> | DecodingResult) => {
       setLoading(true);
       setError(null);
       setResult(null);
 
       try {
-        const decodingResult = await decoder.decode(file);
+        const decodingResult = await task();
         setResult(decodingResult);
 
         // Автоскролл к результатам
@@ -38,7 +38,17 @@ export function useQRDecoder() {
         setLoading(false);
       }
     },
-    [decoder],
+    [],
+  );
+
+  const decode = useCallback(
+    (file: File) => run(() => decoder.decode(file)),
+    [decoder, run],
+  );
+
+  const decodeText = useCallback(
+    (text: string) => run(() => decoder.decodeText(text)),
+    [decoder, run],
   );
 
   const updateAccounts = useCallback((updatedAccounts: TOTPAccount[]) => {
@@ -51,5 +61,5 @@ export function useQRDecoder() {
     });
   }, []);
 
-  return { result, loading, error, decode, updateAccounts, resultsRef };
+  return { result, loading, error, decode, decodeText, updateAccounts, resultsRef };
 }

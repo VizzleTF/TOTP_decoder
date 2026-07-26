@@ -1,49 +1,51 @@
 {
   "app": {
     "title": "TOTP QR Decoder",
-    "description": "Decode your authenticator QR codes with <security>{{security}}</security> and <privacy>{{privacy}}</privacy>",
-    "security": "military-grade security",
-    "privacy": "zero data transmission"
+    "description": "Decode authenticator QR codes into live one-time passwords. <privacy>{{privacy}}</privacy> — <security>{{security}}</security>.",
+    "security": "nothing is uploaded",
+    "privacy": "Everything runs in your browser"
   },
   "header": {
-    "clientSide": "100% Client-Side",
-    "noDataSent": "No Data Sent"
+    "clientSide": "Client-side",
+    "noDataSent": "No data sent"
   },
   "uploader": {
-    "title": "Drag & drop your QR code image or click to browse",
-    "processing": "Decoding your QR code with precision...",
-    "dragActive": "Release to decode your QR code instantly",
-    "supportedFormats": "PNG, JPG, WebP",
-    "instantProcessing": "Instant Processing",
-    "tip": "Pro tip: You can also paste images with",
+    "title": "Drop a QR code image, or click to browse",
+    "processing": "Decoding…",
+    "dragActive": "Drop to decode",
+    "supportedFormats": "PNG · JPG · WebP",
+    "instantProcessing": "Instant processing",
+    "tip": "or paste QR, otpauth:// or Base32 with",
     "supportedTypes": "Supported: PNG, JPG, JPEG, GIF, BMP, WebP"
   },
   "results": {
-    "title": "Successfully Decoded!",
+    "title": "Decoded",
     "found": "Found {{count}} account from your {{type}}",
     "found_plural": "Found {{count}} accounts from your {{type}}",
     "standardTotp": "Standard TOTP",
-    "migrationQr": "Migration QR Code",
-    "generating": "All codes are generating securely"
+    "migrationQr": "Migration QR",
+    "generating": "Codes are generated locally"
   },
   "account": {
     "service": "Service",
     "otpAuthUrl": "OTP Auth URL",
+    "secret": "Base32 Secret",
     "copyCode": "Copy code",
-    "copyUrl": "Copy URL"
+    "copyUrl": "Copy URL",
+    "copySecret": "Copy secret"
   },
   "status": {
-    "decoding": "Decoding QR Code",
-    "analyzing": "Analyzing your image with advanced algorithms...",
-    "failed": "Decoding Failed",
-    "tip": "Make sure your image contains a clear QR code and try again."
+    "decoding": "Decoding QR code…",
+    "analyzing": "Reading image…",
+    "failed": "Decoding failed",
+    "tip": "Make sure the image contains a clear QR code and try again."
   },
   "footer": {
-    "madeWith": "Made with precision and care for your security",
-    "viewSource": "View Source"
+    "madeWith": "Client-side only · Open source",
+    "viewSource": "Source"
   },
   "clipboard": {
-    "copied": "Copied!",
+    "copied": "Copied",
     "failed": "Failed to copy"
   },
   "errors": {

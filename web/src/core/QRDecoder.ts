@@ -1,6 +1,7 @@
 import { DecodingResult, AppError } from '../types/core'
 import { ImageService } from '../services/ImageService'
 import { QRService } from '../services/QRService'
+import { TOTPService } from '../services/TOTPService'
 import { StandardParser } from '../parsers/StandardParser'
 import { MigrationParser } from '../parsers/MigrationParser'
 
@@ -15,6 +16,32 @@ export class QRDecoder {
       }
 
       return this.parseQRData(qrData)
+    } catch (error) {
+      throw this.createError(error)
+    }
+  }
+
+  decodeText(text: string): DecodingResult {
+    try {
+      const trimmed = text.trim()
+
+      if (QRService.isStandardTOTP(trimmed) || QRService.isMigration(trimmed)) {
+        return this.parseQRData(trimmed)
+      }
+
+      // Raw Base32 secret (spaces/dashes tolerated)
+      const secret = trimmed.replace(/[\s-]/g, '').toUpperCase()
+      if (/^[A-Z2-7]+=*$/.test(secret) && secret.length >= 16) {
+        const account = StandardParser.parse(
+          TOTPService.createOtpauthUrl('', '', secret)
+        )
+        return {
+          type: 'standard',
+          accounts: [account]
+        }
+      }
+
+      throw new Error('Unsupported QR code format')
     } catch (error) {
       throw this.createError(error)
     }
