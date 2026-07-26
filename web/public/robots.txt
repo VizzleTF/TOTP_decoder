@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://totp-decoder.vakaf.space/sitemap.xml
+Sitemap: https://totp.onlyyaml.dev/sitemap.xml
 
 # Disallow crawling of API endpoints if any
 Disallow: /api/

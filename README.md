@@ -1,131 +1,69 @@
+# TOTP QR Code Decoder
+
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/VizzleTF/totp_decoder)
 
-# TOTP QR Code Decoder 
+Decode authenticator QR codes into live one-time passwords. Fully client-side — nothing is uploaded.
 
-A modern, fully client-side web application for decoding TOTP (Time-based One-Time Password) QR codes from images. Everything runs securely in your browser!
+### 🌐 [totp.onlyyaml.dev](https://totp.onlyyaml.dev/)
 
-## 🌐 Use it online
-### [https://totp-decoder.vercel.app](https://totp-decoder.vercel.app/)
-
-*Or deploy your own copy:* 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/VizzleTF/TOTP_decoder)
+![TOTP QR Decoder](example.png)
 
 ## Features
 
-- 🔐 **Fully Client-Side**: All processing in browser - no data sent to servers
-- 📷 **QR Code Decoding**: Decode TOTP QR codes from images and screenshots
-- 📱 **Google Authenticator Migration**: Support for migration QR codes (otpauth-migration://)
-- ⏰ **Live TOTP Generation**: Generate current TOTP codes in real-time
-- 👥 **Multiple Accounts**: Handle multiple accounts from migration QR codes
-- 📁 **Drag & Drop**: Simply drag images or paste with Ctrl+V (Cmd+V on Mac)
-- 📋 **One-click Copy**: Copy TOTP codes and OTP Auth URLs
-- 📱 **Mobile Friendly**: Responsive design for all devices
+- 🔐 **Fully client-side** — all processing happens in your browser, no server communication, no storage
+- 📋 **Paste anything** — QR image, `otpauth://` link, or raw Base32 secret, via Ctrl+V anywhere on the page
+- 📷 **Drag & drop** — PNG, JPG, JPEG, GIF, BMP, WebP
+- 📱 **Migration QR support** — multiple accounts from Google Authenticator `otpauth-migration://` exports
+- ⏰ **Live codes** — TOTP regenerates in real time with a remaining-time indicator
+- 🔁 **Re-encode** — each result shows a scannable QR (click to enlarge), its Base32 secret, and its OTP Auth URL
+- 🖱️ **One-click copy** — codes, secrets, and URLs
+- 🌓 **Light & dark** — follows the system theme, respects `prefers-reduced-motion`
+- 🌍 **i18n** — English and Russian
 
 ## Usage
 
-1. **Upload QR code**: Drag & drop image, click to select, or paste with Ctrl+V
-2. **View results**: Automatic decoding shows account info, current TOTP codes, and OTP Auth URLs
-3. **Copy codes**: Click copy buttons for TOTP codes or URLs
-4. **Migration support**: Multiple accounts from Google Authenticator migration QR codes
+1. Drop or paste a QR image, an `otpauth://` link, or a Base32 secret
+2. Read the decoded accounts: issuer, account, current code, secret, OTP Auth URL
+3. Click any value to copy it, or click the QR tile to enlarge it and scan into another authenticator
 
-## Supported Formats
+## Supported input
 
-**Images**: PNG, JPG, JPEG, BMP, TIFF, WebP
+| Type | Format |
+| --- | --- |
+| Standard TOTP | `otpauth://totp/...` |
+| Migration | `otpauth-migration://offline?data=...` |
+| Raw secret | Base32 (≥16 chars, spaces and dashes tolerated) |
+| Images | PNG, JPG, JPEG, GIF, BMP, WebP |
 
-**QR Codes**:
-- `otpauth://totp/` - Standard TOTP format
-- `otpauth-migration://` - Google Authenticator migration format
-- Parameters: secret, issuer, algorithm (SHA1/SHA256/SHA512), digits (6/8), period
+Parameters honored: `secret`, `issuer`, `algorithm` (SHA1/SHA256/SHA512), `digits` (6/8), `period`.
 
-## Project Structure
+## Security model
 
-```
-TOTPdecode/
-├── web/                    # React web application
-│   ├── src/
-│   │   ├── App.tsx         # Main React component
-│   │   ├── totpDecoder.ts  # Core TOTP decoding logic
-│   │   ├── otpMigration.ts # Migration protobuf decoder
-│   │   ├── main.tsx        # React entry point
-│   │   └── index.css       # Global styles
-│   ├── public/
-│   │   └── vite.svg        # Vite logo
-│   ├── package.json        # Web app dependencies
-│   ├── vite.config.js      # Vite configuration
-│   ├── tailwind.config.js  # Tailwind CSS config
-│   ├── postcss.config.js   # PostCSS config
-│   └── index.html          # HTML template
-├── package.json            # Root package.json
-├── vercel.json             # Deployment config
-├── .vercelignore           # Vercel ignore rules
-├── test_qr_code.png        # Test QR code image
-└── README.md               # Project documentation
-```
-
-## Data Processing Flow
-
-The application implements a pipeline architecture for processing QR code images through to TOTP code generation:
+Zero-trust by construction: secrets never leave the browser.
 
 ```mermaid
-flowchart TD
-    A[Image File Upload] --> B[Load Image to Canvas]
-    B --> C[Extract ImageData]
-    C --> D[QR Code Detection]
-    D --> E{QR Code Found?}
-    E -->|No| F[Error: No QR code found]
-    E -->|Yes| G[Parse QR Data]
-    G --> H{QR Code Type?}
-    H -->|otpauth://totp/| I[Parse Standard TOTP URL]
-    H -->|otpauth-migration://| J[Parse Migration Data]
-    H -->|Other| K[Error: Unsupported format]
-    
-    I --> L[Extract Account Info]
-    J --> M[Decode Base64 Data]
-    M --> N[Parse Protobuf Payload]
-    N --> O[Extract Multiple Accounts]
-    O --> P[Convert Secrets to Base32]
-    
-    L --> Q[Generate TOTP Code]
-    P --> Q
-    Q --> R[Display Results]
-    
-    style A fill:#e1f5fe
-     style R fill:#c8e6c9
-     style F fill:#ffcdd2
-     style K fill:#ffcdd2
+flowchart LR
+    U[Image / text input] --> IMG[Canvas API]
+    IMG --> QR[jsQR decode]
+    QR --> TOTP[totp-generator]
+    TOTP --> UI[Rendered in memory]
+    UI -.->|never| NET[❌ Network]
 ```
 
-## Security Model
+No server communication, no persistent storage, all cryptographic operations local.
 
-The application implements a zero-trust security model where all sensitive operations occur exclusively within the user's browser environment:
+## Development
 
-```mermaid
-flowchart TB
-    U[User Image Input]
-    
-    subgraph Memory["Browser Memory Only"]
-        IMG[Image Processing<br/>Canvas API]
-        QR[QR Code Decoding<br/>jsQR]
-        TOTP[TOTP Generation<br/>totp-generator]
-        MEM["🔒 Temporary Memory"]
-    end
-    
-    subgraph Security["Security Guarantees"]
-        G1["✅ TOTP secrets never leave browser"]
-        G2["✅ No server communication"]
-        G3["✅ No persistent storage"]
-        G4["✅ Local cryptographic operations"]
-    end
-    
-    U --> IMG
-    IMG --> QR
-    QR --> TOTP
-    TOTP --> MEM
-    MEM -.- G1
-    MEM -.- G2
-    MEM -.- G3
-    MEM -.- G4
-    
-    style Memory stroke:#ff9800,stroke-width:2px
-    style Security stroke:#9c27b0,stroke-width:2px
+```bash
+npm install     # installs web/ dependencies
+npm run dev     # vite dev server on :3000
+npm run build   # production build to web/dist
 ```
+
+## Support
+
+[Buy Me a Coffee](https://www.buymeacoffee.com/vizzletf) · [Boosty](https://boosty.to/vizzletf/donate)
+
+## License
+
+MIT

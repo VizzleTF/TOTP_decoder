@@ -16,13 +16,13 @@
     "otp",
     "google-authenticator"
   ],
-  "author": "Your Name",
+  "author": "VizzleTF",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/TOTPdecode.git"
+    "url": "https://github.com/VizzleTF/TOTP_decoder.git"
   },
-  "homepage": "https://totp-decoder.vercel.app",
+  "homepage": "https://totp.onlyyaml.dev",
   "dependencies": {
     "qrcode": "^1.5.4"
   }
