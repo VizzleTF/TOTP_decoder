@@ -1,7 +1,9 @@
 {
+  "id": "/",
   "short_name": "TOTP Decoder",
-  "name": "TOTP Decoder - QR Code Scanner",
-  "description": "Decode TOTP QR codes and extract authentication secrets",
+  "name": "TOTP QR Decoder",
+  "description": "Decode TOTP and 2FA QR codes and extract authentication secrets, entirely in your browser",
+  "categories": ["utilities", "security"],
   "icons": [
     {
       "src": "favicon-96x96.png",
@@ -35,9 +37,10 @@
   ],
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#10b981",
-  "background_color": "#ffffff",
+  "theme_color": "#0A0A0B",
+  "background_color": "#0A0A0B",
   "orientation": "portrait-primary",
   "scope": "/",
-  "lang": "en"
+  "lang": "en",
+  "dir": "ltr"
 }

@@ -9,7 +9,7 @@ export class QRDecoder {
   async decode(file: File): Promise<DecodingResult> {
     try {
       const imageData = await ImageService.loadFromFile(file)
-      const qrData = QRService.decode(imageData)
+      const qrData = await QRService.decode(imageData)
 
       if (!qrData) {
         throw new Error('No QR code found in image')
@@ -21,12 +21,12 @@ export class QRDecoder {
     }
   }
 
-  decodeText(text: string): DecodingResult {
+  async decodeText(text: string): Promise<DecodingResult> {
     try {
       const trimmed = text.trim()
 
       if (QRService.isStandardTOTP(trimmed) || QRService.isMigration(trimmed)) {
-        return this.parseQRData(trimmed)
+        return await this.parseQRData(trimmed)
       }
 
       // Raw Base32 secret (spaces/dashes tolerated)
@@ -47,7 +47,7 @@ export class QRDecoder {
     }
   }
 
-  private parseQRData(data: string): DecodingResult {
+  private async parseQRData(data: string): Promise<DecodingResult> {
     if (QRService.isStandardTOTP(data)) {
       const account = StandardParser.parse(data)
       return {
@@ -57,7 +57,7 @@ export class QRDecoder {
     }
 
     if (QRService.isMigration(data)) {
-      const accounts = MigrationParser.parse(data)
+      const accounts = await MigrationParser.parse(data)
       return {
         type: 'migration',
         accounts

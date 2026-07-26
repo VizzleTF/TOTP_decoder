@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Geist+Mono:wght@400;500;600&display=swap');
+/* Self-hosted: kills two extra origins and a 4-hop request chain
+   before the first glyph. See fonts.css for subset rationale. */
+@import './fonts.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -42,8 +44,18 @@
     }
   }
 
+  /* Fallback metrics matched to Inter so the swap does not shift layout */
+  @font-face {
+    font-family: 'Inter Fallback';
+    src: local('Arial');
+    size-adjust: 107%;
+    ascent-override: 90%;
+    descent-override: 22.43%;
+    line-gap-override: 0%;
+  }
+
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter Variable', 'Inter Fallback', system-ui, sans-serif;
     font-feature-settings: 'cv01', 'ss03';
     scroll-behavior: smooth;
     color-scheme: light dark;

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, Copy } from "lucide-react";
-import QRCode from "qrcode";
 import { TOTPAccount } from "../types/core";
 import { useI18n } from "../hooks/useI18n";
 
@@ -30,12 +29,16 @@ const QRTile: React.FC<{ value: string }> = ({ value }) => {
 
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(value, {
-      margin: 1,
-      width: 640,
-      errorCorrectionLevel: "M",
-      color: { dark: "#1C1917", light: "#FAFAF9" },
-    })
+    // qrcode is ~9 KB gzip and only needed once a result exists
+    import("qrcode")
+      .then(({ default: QRCode }) =>
+        QRCode.toDataURL(value, {
+          margin: 1,
+          width: 640,
+          errorCorrectionLevel: "M",
+          color: { dark: "#1C1917", light: "#FAFAF9" },
+        }),
+      )
       .then((url) => {
         if (!cancelled) setDataUrl(url);
       })

@@ -1,6 +1,5 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
 
 // Import translations
 import en from './locales/en.json'
@@ -11,21 +10,23 @@ const resources = {
   ru: { translation: ru }
 }
 
+/**
+ * Language comes from the URL path only — /ru/ serves the Russian build.
+ * No LanguageDetector: localStorage or navigator overriding the path would
+ * desync the rendered copy from the static <html lang> and hreflang tags.
+ */
+const lng = window.location.pathname.startsWith('/ru') ? 'ru' : 'en'
+
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
+    lng,
     fallbackLng: 'en',
     debug: false,
-    
+
     interpolation: {
       escapeValue: false
-    },
-    
-    detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage']
     }
   })
 

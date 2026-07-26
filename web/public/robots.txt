@@ -1,10 +1,5 @@
 User-agent: *
 Allow: /
 
-# Sitemap location
+# AI crawlers are welcome — the page is static HTML and they do not run JS
 Sitemap: https://totp.onlyyaml.dev/sitemap.xml
-
-# Disallow crawling of API endpoints if any
-Disallow: /api/
-
-# Allow all other content to be indexed

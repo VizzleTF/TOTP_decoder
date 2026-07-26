@@ -3,13 +3,14 @@ export default {
   darkMode: 'media',
   content: [
     "./index.html",
+    "./ru/index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['"Geist Mono"', '"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        sans: ['"Inter Variable"', '"Inter Fallback"', 'system-ui', 'sans-serif'],
+        mono: ['"Geist Mono"', 'ui-monospace', 'monospace'],
       },
       colors: {
         canvas: 'var(--canvas)',

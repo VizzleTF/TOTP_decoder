@@ -1,5 +1,3 @@
-import protobuf from 'protobufjs';
-
 // TypeScript interfaces for the protobuf structures
 export interface IOtpParameters {
   secret?: Uint8Array;
@@ -125,9 +123,20 @@ const migrationProtoSchema = {
   }
 };
 
-// Create protobuf root and load schema
-const root = protobuf.Root.fromJSON(migrationProtoSchema);
-const MigrationPayload = root.lookupType('MigrationPayload');
+/**
+ * protobufjs is ~26 KB gzip and only needed for otpauth-migration:// payloads,
+ * so the schema is built on first use behind a dynamic import.
+ * `protobufjs/light` is enough here — Root.fromJSON lives in light, not minimal.
+ */
+let cached: Promise<import('protobufjs').Type> | undefined;
 
-export { MigrationPayload };
-export default root;
+export function loadMigrationPayload(): Promise<import('protobufjs').Type> {
+  if (!cached) {
+    cached = import('protobufjs/light').then((mod) => {
+      const protobuf = mod.default ?? mod;
+      const root = protobuf.Root.fromJSON(migrationProtoSchema);
+      return root.lookupType('MigrationPayload');
+    });
+  }
+  return cached;
+}

@@ -1,11 +1,11 @@
 import { TOTPAccount } from '../types/core'
 import { TOTPService } from '../services/TOTPService'
-import { MigrationPayload } from '../otpMigration'
+import { loadMigrationPayload } from '../otpMigration'
 import { base64ToUint8Array, uint8ArrayToBase32 } from '../utils/base32'
 import { ALGORITHM_MAP, DIGITS_MAP, DEFAULT_PERIOD } from '../utils/constants'
 
 export class MigrationParser {
-  static parse(url: string): TOTPAccount[] {
+  static async parse(url: string): Promise<TOTPAccount[]> {
     const urlObj = new URL(url)
     const data = urlObj.searchParams.get('data')
 
@@ -13,6 +13,7 @@ export class MigrationParser {
       throw new Error('No data parameter in migration URL')
     }
 
+    const MigrationPayload = await loadMigrationPayload()
     const binaryData = base64ToUint8Array(data)
     const payload = MigrationPayload.decode(binaryData) as any
 
