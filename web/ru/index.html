@@ -124,7 +124,9 @@
     <body>
         <div id="bg"></div>
 
-        <div class="relative z-10 mx-auto max-w-2xl px-6 pt-8 md:pt-10">
+        <div class="relative z-10 mx-auto max-w-2xl px-6">
+          <!-- First viewport: tool only. The prose below always starts at the fold. -->
+          <div class="flex min-h-[100dvh] flex-col pt-8 md:pt-10">
             <nav class="mb-20 flex items-center justify-between md:mb-28">
                 <a href="/ru/" class="font-mono text-sm tracking-tight text-ink">
                     totp<span class="text-ink-subtle">/</span>decoder
@@ -175,12 +177,32 @@
             <!-- Interactive tool -->
             <div id="root"></div>
 
-            <p class="mb-20 font-mono text-xs text-ink-subtle">
+            <p class="font-mono text-xs text-ink-subtle">
                 Только для ваших собственных аккаунтов.
             </p>
 
+            <a
+                href="#decode"
+                class="group mt-auto flex items-center justify-center gap-2 py-8 font-mono text-xs uppercase tracking-[0.08em] text-ink-subtle transition-colors duration-150 hover:text-ink"
+            >
+                Что декодер принимает
+                <svg
+                    class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <path d="m6 9 6 6 6-6" />
+                </svg>
+            </a>
+          </div>
+
             <main class="space-y-16">
-                <section>
+                <section id="decode" class="scroll-mt-10 pt-4">
                     <h2
                         class="mb-5 text-2xl font-semibold tracking-[-0.02em] text-ink"
                     >
