@@ -1,8 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 import { Check, Copy } from "lucide-react";
-import { TOTPAccount } from "../types/core";
-import { useI18n } from "../hooks/useI18n";
+import { useTranslation } from "react-i18next";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import { TOTPAccount } from "@/types/core";
 
 interface AccountCardProps {
   account: TOTPAccount;
@@ -12,20 +24,36 @@ interface AccountCardProps {
   index: number;
 }
 
+const LABEL = "font-mono text-[11px] uppercase tracking-[0.08em] text-ink-subtle";
+
 /** "123456" -> "123 456", "12345678" -> "1234 5678" */
 const formatCode = (code: string): string => {
   const mid = Math.ceil(code.length / 2);
   return `${code.slice(0, mid)} ${code.slice(mid)}`;
 };
 
+function CopyIcon({ copied }: { copied: boolean }) {
+  return copied ? (
+    <Check className="text-ok" />
+  ) : (
+    <Copy className="text-ink-subtle" />
+  );
+}
+
+interface QRTileProps {
+  value: string;
+  title: string;
+  description: string;
+}
+
 /**
  * Scannable QR of the otpauth:// URL — small tile inline with the code,
- * click opens an enlarged modal. Muted warm-paper quiet zone instead of
+ * click opens an enlarged dialog. Muted warm-paper quiet zone instead of
  * stark white; contrast stays far above scanner requirements.
  */
-const QRTile: React.FC<{ value: string }> = ({ value }) => {
+function QRTile({ value, title, description }: QRTileProps) {
+  const { t } = useTranslation();
   const [dataUrl, setDataUrl] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,160 +76,147 @@ const QRTile: React.FC<{ value: string }> = ({ value }) => {
     };
   }, [value]);
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
-
   if (!dataUrl) return null;
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="shrink-0 cursor-zoom-in rounded-lg border border-line p-1 opacity-90 transition-opacity duration-150 hover:opacity-100"
-      >
-        <img src={dataUrl} alt="" className="h-[72px] w-[72px] rounded" />
-      </button>
-
-      {open &&
-        createPortal(
-          <div
-            role="dialog"
-            aria-modal="true"
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-[70] flex cursor-zoom-out items-center justify-center bg-black/70 p-6"
-          >
-            <img
-              src={dataUrl}
-              alt=""
-              className="w-full max-w-xs rounded-xl sm:max-w-sm"
-            />
-          </div>,
-          document.body,
-        )}
-    </>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          aria-label={t("account.showQr")}
+          title={t("account.showQr")}
+          className="h-auto shrink-0 cursor-zoom-in rounded-lg p-1"
+        >
+          <img src={dataUrl} alt="" className="size-[72px] rounded" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent closeLabel={t("account.close")}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <img src={dataUrl} alt="" className="w-full rounded-lg" />
+      </DialogContent>
+    </Dialog>
   );
-};
+}
 
-export const AccountCard: React.FC<AccountCardProps> = ({
+interface CopyFieldProps {
+  label: string;
+  title: string;
+  value: string;
+  copied: boolean;
+  onCopy: () => void;
+}
+
+/** Labelled monospace value; the whole row copies on click. */
+function CopyField({ label, title, value, copied, onCopy }: CopyFieldProps) {
+  return (
+    <div className="mt-3 border-t border-line pt-3">
+      <Button
+        variant="ghost"
+        title={title}
+        onClick={onCopy}
+        className="-mx-3 h-auto w-[calc(100%+1.5rem)] flex-col items-stretch gap-2 whitespace-normal px-3 py-2 text-left font-normal"
+      >
+        <span className={cn(LABEL, "flex items-center justify-between")}>
+          {label}
+          <CopyIcon copied={copied} />
+        </span>
+        <span className="break-all font-mono text-xs leading-relaxed text-ink-muted">
+          {value}
+        </span>
+      </Button>
+    </div>
+  );
+}
+
+export function AccountCard({
   account,
   timeLeft,
   copiedId,
   onCopy,
   index,
-}) => {
-  const { t } = useI18n();
+}: AccountCardProps) {
+  const { t } = useTranslation();
   const codeId = `code-${index}`;
   const urlId = `url-${index}`;
   const secretId = `secret-${index}`;
   const period = account.period || 30;
   const expiring = timeLeft <= 5;
+  const code = account.currentCode || "000000";
+  const issuer = account.issuer || t("account.service");
 
   return (
-    <article
-      className="reveal overflow-hidden rounded-xl border border-line bg-surface-1 transition-colors duration-150 hover:border-line-strong hover:bg-surface-2"
+    <Card
+      className="reveal overflow-hidden transition-colors duration-150 hover:border-line-strong"
       style={{ animationDelay: `${index * 50}ms` }}
     >
-      <div className="p-6">
+      <CardContent>
         {/* Issuer / account / seconds */}
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
-            <p className="mb-1 truncate font-mono text-[11px] uppercase tracking-[0.08em] text-ink-subtle">
-              {account.issuer || t("account.service")}
-            </p>
+            <p className={cn(LABEL, "mb-1 truncate")}>{issuer}</p>
             <p className="truncate text-sm text-ink-muted">{account.account}</p>
           </div>
-          <span
-            className={
-              "shrink-0 font-mono text-xs tabular-nums " +
-              (expiring ? "text-danger" : "text-ink-subtle")
-            }
-          >
+          <Badge variant={expiring ? "destructive" : "outline"}>
             {Math.ceil(timeLeft)}s
-          </span>
+          </Badge>
         </div>
 
         {/* Code + QR */}
-        <div className="mt-5 flex items-center justify-between gap-4">
-          <button
-            type="button"
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <Button
+            variant="ghost"
             title={t("account.copyCode")}
-            onClick={() => onCopy(account.currentCode || "000000", codeId)}
-            className="group flex items-center gap-3 text-left"
+            onClick={() => onCopy(code, codeId)}
+            className="-ml-3 h-auto gap-2 px-3 py-1.5 sm:gap-3"
           >
-            <span className="font-mono text-4xl font-medium tabular-nums tracking-[0.04em] text-ink">
-              {formatCode(account.currentCode || "000000")}
+            {/* 8 digits next to the QR tile only fit a 360px screen at text-2xl */}
+            <span
+              className={cn(
+                "font-mono font-medium tabular-nums tracking-[0.04em] sm:text-4xl",
+                code.length > 6 ? "text-2xl" : "text-3xl",
+              )}
+            >
+              {formatCode(code)}
             </span>
-            {copiedId === codeId ? (
-              <Check className="h-4 w-4 text-ok" />
-            ) : (
-              <Copy className="h-4 w-4 text-ink-subtle opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
-            )}
-          </button>
-          {account.otpauthUrl && <QRTile value={account.otpauthUrl} />}
+            <CopyIcon copied={copiedId === codeId} />
+          </Button>
+          {account.otpauthUrl && (
+            <QRTile
+              value={account.otpauthUrl}
+              title={issuer}
+              description={account.account}
+            />
+          )}
         </div>
 
-        {/* Base32 secret */}
         {account.secret && (
-          <button
-            type="button"
+          <CopyField
+            label={t("account.secret")}
             title={t("account.copySecret")}
-            onClick={() => onCopy(account.secret, secretId)}
-            className="group mt-5 block w-full border-t border-line pt-4 text-left"
-          >
-            <span className="mb-2 flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.08em] text-ink-subtle">
-              {t("account.secret")}
-              {copiedId === secretId ? (
-                <Check className="h-3.5 w-3.5 text-ok" />
-              ) : (
-                <Copy className="h-3.5 w-3.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
-              )}
-            </span>
-            <span className="block break-all font-mono text-xs leading-relaxed text-ink-muted">
-              {account.secret}
-            </span>
-          </button>
+            value={account.secret}
+            copied={copiedId === secretId}
+            onCopy={() => onCopy(account.secret, secretId)}
+          />
         )}
 
-        {/* OTP Auth URL */}
         {account.otpauthUrl && (
-          <button
-            type="button"
+          <CopyField
+            label={t("account.otpAuthUrl")}
             title={t("account.copyUrl")}
-            onClick={() => onCopy(account.otpauthUrl || "", urlId)}
-            className="group mt-5 block w-full border-t border-line pt-4 text-left"
-          >
-            <span className="mb-2 flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.08em] text-ink-subtle">
-              {t("account.otpAuthUrl")}
-              {copiedId === urlId ? (
-                <Check className="h-3.5 w-3.5 text-ok" />
-              ) : (
-                <Copy className="h-3.5 w-3.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
-              )}
-            </span>
-            <span className="block break-all font-mono text-xs leading-relaxed text-ink-muted">
-              {account.otpauthUrl}
-            </span>
-          </button>
+            value={account.otpauthUrl}
+            copied={copiedId === urlId}
+            onCopy={() => onCopy(account.otpauthUrl, urlId)}
+          />
         )}
-      </div>
+      </CardContent>
 
-      {/* Time remaining — 2px line */}
-      <div className="h-0.5 w-full bg-line">
-        <div
-          className="h-full transition-[width] duration-1000 ease-linear"
-          style={{
-            width: `${(timeLeft / period) * 100}%`,
-            background: expiring ? "var(--danger)" : "var(--accent)",
-          }}
-        />
-      </div>
-    </article>
+      <Progress
+        value={(timeLeft / period) * 100}
+        indicatorClassName={expiring ? "bg-danger" : undefined}
+      />
+    </Card>
   );
-};
+}

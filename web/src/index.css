@@ -124,6 +124,12 @@
     animation: none;
   }
 
+  /* tailwindcss-animate (dialog); 1ms keeps animationend firing for Radix unmount */
+  .animate-in,
+  .animate-out {
+    animation-duration: 1ms;
+  }
+
   html {
     scroll-behavior: auto;
   }

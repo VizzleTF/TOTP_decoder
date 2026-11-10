@@ -1,6 +1,6 @@
 import { TOTPAccount } from '../types/core'
 import { TOTPService } from '../services/TOTPService'
-import { DEFAULT_ALGORITHM, DEFAULT_DIGITS, DEFAULT_PERIOD } from '../utils/constants'
+import { DEFAULT_DIGITS, DEFAULT_PERIOD } from '../utils/constants'
 
 export class StandardParser {
   static parse(url: string): TOTPAccount {

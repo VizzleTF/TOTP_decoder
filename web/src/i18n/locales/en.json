@@ -10,6 +10,7 @@
     "noDataSent": "No data sent"
   },
   "uploader": {
+    "browse": "Browse files",
     "title": "Drop a QR code image, or click to browse",
     "processing": "Decoding…",
     "dragActive": "Drop to decode",
@@ -27,6 +28,8 @@
     "generating": "Codes are generated locally"
   },
   "account": {
+    "showQr": "Enlarge QR code",
+    "close": "Close",
     "service": "Service",
     "otpAuthUrl": "OTP Auth URL",
     "secret": "Base32 Secret",

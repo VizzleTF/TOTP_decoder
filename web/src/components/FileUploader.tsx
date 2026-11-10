@@ -1,17 +1,18 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, Loader2 } from 'lucide-react'
-import clsx from 'clsx'
-import { SUPPORTED_IMAGE_TYPES } from '../utils/constants'
-import { useI18n } from '../hooks/useI18n'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { SUPPORTED_IMAGE_TYPES } from '@/utils/constants'
 
 interface FileUploaderProps {
   onUpload: (file: File) => void
   loading: boolean
 }
 
-export const FileUploader: React.FC<FileUploaderProps> = ({ onUpload, loading }) => {
-  const { t } = useI18n()
+export function FileUploader({ onUpload, loading }: FileUploaderProps) {
+  const { t } = useTranslation()
 
   const onDrop = useCallback((files: File[]) => {
     if (files[0]) onUpload(files[0])
@@ -24,48 +25,47 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onUpload, loading })
     disabled: loading
   })
 
+  const Icon = loading ? Loader2 : Upload
+
   return (
-    <div className="reveal mb-12" style={{ animationDelay: '60ms' }}>
-      <div
-        {...getRootProps()}
-        className={clsx(
-          'cursor-pointer rounded-xl border-[1.5px] border-dashed transition-colors duration-150',
-          {
-            'border-accent bg-accent/[0.06]': isDragActive,
-            'border-line-strong bg-surface-1 hover:border-ink-subtle': !isDragActive && !loading,
-            'pointer-events-none border-line opacity-60': loading
-          }
+    <div
+      {...getRootProps()}
+      style={{ animationDelay: '60ms' }}
+      className={cn(
+        'reveal mb-12 cursor-pointer rounded-xl border-[1.5px] border-dashed border-line-strong bg-surface-1 px-6 py-12 text-center transition-colors duration-150 hover:border-ink-subtle',
+        isDragActive &&
+          'border-accent bg-[color-mix(in_srgb,var(--accent)_6%,var(--surface-1))] hover:border-accent',
+        loading && 'pointer-events-none border-line opacity-60'
+      )}
+    >
+      <input {...getInputProps()} />
+
+      <Icon
+        className={cn(
+          'mx-auto mb-5 size-5 text-ink-subtle transition-colors duration-150',
+          loading && 'animate-spin',
+          isDragActive && 'text-accent'
         )}
-      >
-        <div className="px-6 py-14 text-center">
-          <input {...getInputProps()} />
+      />
 
-          {loading ? (
-            <Loader2 className="mx-auto mb-5 h-5 w-5 animate-spin text-ink-subtle" />
-          ) : (
-            <Upload
-              className={clsx('mx-auto mb-5 h-5 w-5 transition-colors duration-150', {
-                'text-accent': isDragActive,
-                'text-ink-subtle': !isDragActive
-              })}
-            />
-          )}
+      <p className="mb-5 font-medium text-ink">
+        {loading
+          ? t('uploader.processing')
+          : isDragActive
+            ? t('uploader.dragActive')
+            : t('uploader.title')}
+      </p>
 
-          <p className="mb-3 font-medium text-ink">
-            {loading
-              ? t('uploader.processing')
-              : isDragActive
-                ? t('uploader.dragActive')
-                : t('uploader.title')}
-          </p>
+      {/* No handler: the click bubbles to the dropzone root, which opens the picker */}
+      <Button variant="outline" size="sm" disabled={loading} className="mb-5">
+        {t('uploader.browse')}
+      </Button>
 
-          <p className="font-mono text-xs uppercase tracking-[0.08em] text-ink-subtle">
-            {t('uploader.supportedFormats')}
-            <span className="mx-2 text-line-strong">/</span>
-            {t('uploader.tip')} <kbd className="normal-case">Ctrl+V</kbd>
-          </p>
-        </div>
-      </div>
+      <p className="font-mono text-xs uppercase tracking-[0.08em] text-ink-subtle">
+        {t('uploader.supportedFormats')}
+        <span className="mx-2 text-line-strong">/</span>
+        {t('uploader.tip')} <kbd className="normal-case">Ctrl+V</kbd>
+      </p>
     </div>
   )
 }

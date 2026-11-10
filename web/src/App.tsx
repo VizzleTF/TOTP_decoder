@@ -1,11 +1,15 @@
-import { useCallback } from "react";
+import { lazy, Suspense, useCallback } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { useQRDecoder } from "./hooks/useQRDecoder";
 import { useTimer } from "./hooks/useTimer";
-import { useClipboard } from "./hooks/useClipboard";
+import { usePasteListener } from "./hooks/usePasteListener";
 import { FileUploader } from "./components/FileUploader";
-import { ResultsList } from "./components/ResultsList";
-import { Loading, Error } from "./components/StatusMessage";
+import { DecodeError } from "./components/DecodeError";
+
+// Dialog, toasts and QR rendering are only needed once something is decoded
+const ResultsList = lazy(() =>
+  import("./components/ResultsList").then((m) => ({ default: m.ResultsList })),
+);
 
 /**
  * Interactive part only. The hero, prose sections, FAQ and footer are static
@@ -13,15 +17,8 @@ import { Loading, Error } from "./components/StatusMessage";
  * run JS) get the full text without executing anything.
  */
 export default function App() {
-  const {
-    result,
-    loading,
-    error,
-    decode,
-    decodeText,
-    updateAccounts,
-    resultsRef,
-  } = useQRDecoder();
+  const { result, loading, error, decode, decodeText, updateAccounts } =
+    useQRDecoder();
   const timers = useTimer(result?.accounts || [], updateAccounts);
 
   // Global text paste: only decode clipboard content that looks like a code
@@ -38,21 +35,16 @@ export default function App() {
     [decodeText],
   );
 
-  const { copiedId, copy } = useClipboard(decode, pasteText);
+  usePasteListener(decode, pasteText);
 
   return (
     <>
       <FileUploader onUpload={decode} loading={loading} />
-      <Loading loading={loading} />
-      <Error error={error} />
+      <DecodeError error={error} />
       {result && (
-        <ResultsList
-          ref={resultsRef}
-          result={result}
-          timers={timers}
-          copiedId={copiedId}
-          onCopy={copy}
-        />
+        <Suspense fallback={null}>
+          <ResultsList result={result} timers={timers} />
+        </Suspense>
       )}
       <Analytics />
     </>

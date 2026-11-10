@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { DecodingResult, AppError, TOTPAccount } from "../types/core";
 import { QRDecoder } from "../core/QRDecoder";
 import { getErrorMessage } from "../utils/errorMessages";
@@ -7,7 +7,6 @@ export function useQRDecoder() {
   const [result, setResult] = useState<DecodingResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AppError | null>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
 
   const decoder = useMemo(() => new QRDecoder(), []);
 
@@ -20,14 +19,6 @@ export function useQRDecoder() {
       try {
         const decodingResult = await task();
         setResult(decodingResult);
-
-        // Автоскролл к результатам
-        setTimeout(() => {
-          resultsRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }, 100);
       } catch (err) {
         const appError = err as AppError;
         setError({
@@ -61,5 +52,5 @@ export function useQRDecoder() {
     });
   }, []);
 
-  return { result, loading, error, decode, decodeText, updateAccounts, resultsRef };
+  return { result, loading, error, decode, decodeText, updateAccounts };
 }
