@@ -16,10 +16,7 @@ export function DecodeError({ error }: DecodeErrorProps) {
     <Alert className="reveal mb-12">
       <AlertTriangle />
       <AlertTitle>{t('status.failed')}</AlertTitle>
-      <AlertDescription>
-        <p>{error.message}</p>
-        <p className="mt-2 text-ink-subtle">{t('status.tip')}</p>
-      </AlertDescription>
+      <AlertDescription>{error.message}</AlertDescription>
     </Alert>
   )
 }

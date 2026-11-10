@@ -69,6 +69,6 @@ export class QRDecoder {
 
   private createError(error: unknown): AppError {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    return { message: `Failed to decode QR: ${message}` }
+    return { message }
   }
 }

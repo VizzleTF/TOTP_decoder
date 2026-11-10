@@ -6,14 +6,15 @@ const protobuf = require('protobufjs');
 // Base32 encoding/decoding functions
 function base32ToBytes(base32) {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-  let bits = '';
+  let bits = 0;
   let value = 0;
-  let output = [];
-  
-  for (let i = 0; i < base32.length; i++) {
-    value = (value << 5) | alphabet.indexOf(base32[i]);
+  const output = [];
+
+  for (const char of base32) {
+    // Keep only the bits not yet written, so value never overflows 32 bits
+    value = ((value & ((1 << bits) - 1)) << 5) | alphabet.indexOf(char);
     bits += 5;
-    
+
     if (bits >= 8) {
       output.push((value >>> (bits - 8)) & 255);
       bits -= 8;

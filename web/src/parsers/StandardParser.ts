@@ -5,17 +5,11 @@ import { DEFAULT_DIGITS, DEFAULT_PERIOD } from '../utils/constants'
 export class StandardParser {
   static parse(url: string): TOTPAccount {
     const urlObj = new URL(url)
-    const pathParts = urlObj.pathname.substring(1).split(':')
-
-    let issuer = ''
-    let account = ''
-
-    if (pathParts.length === 2) {
-      issuer = decodeURIComponent(pathParts[0])
-      account = decodeURIComponent(pathParts[1])
-    } else {
-      account = decodeURIComponent(pathParts[0])
-    }
+    // Decode before splitting: the label's colon is often sent as %3A
+    const label = decodeURIComponent(urlObj.pathname.substring(1))
+    const separator = label.indexOf(':')
+    let issuer = separator === -1 ? '' : label.slice(0, separator)
+    const account = label.slice(separator + 1).trim()
 
     const secret = urlObj.searchParams.get('secret')
     const issuerParam = urlObj.searchParams.get('issuer')

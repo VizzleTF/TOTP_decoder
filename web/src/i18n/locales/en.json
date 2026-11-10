@@ -1,68 +1,42 @@
 {
-  "app": {
-    "title": "TOTP QR Decoder",
-    "description": "Decode authenticator QR codes into live one-time passwords. <privacy>{{privacy}}</privacy> — <security>{{security}}</security>.",
-    "security": "nothing is uploaded",
-    "privacy": "Everything runs in your browser"
-  },
-  "header": {
-    "clientSide": "Client-side",
-    "noDataSent": "No data sent"
-  },
   "uploader": {
+    "title": "Drop a QR code image here",
     "browse": "Browse files",
-    "title": "Drop a QR code image, or click to browse",
     "processing": "Decoding…",
     "dragActive": "Drop to decode",
     "supportedFormats": "PNG · JPG · WebP",
-    "instantProcessing": "Instant processing",
-    "tip": "or paste QR, otpauth:// or Base32 with",
-    "supportedTypes": "Supported: PNG, JPG, JPEG, GIF, BMP, WebP"
+    "tip": "or paste an image, an otpauth:// URL or a Base32 secret with"
   },
   "results": {
     "title": "Decoded",
-    "found": "Found {{count}} account from your {{type}}",
-    "found_plural": "Found {{count}} accounts from your {{type}}",
     "standardTotp": "Standard TOTP",
-    "migrationQr": "Migration QR",
-    "generating": "Codes are generated locally"
+    "migrationQr": "Export QR code"
   },
   "account": {
-    "showQr": "Enlarge QR code",
-    "close": "Close",
     "service": "Service",
-    "otpAuthUrl": "OTP Auth URL",
-    "secret": "Base32 Secret",
+    "otpAuthUrl": "otpauth:// URL",
+    "secret": "Base32 secret",
     "copyCode": "Copy code",
     "copyUrl": "Copy URL",
-    "copySecret": "Copy secret"
+    "copySecret": "Copy secret",
+    "showQr": "Enlarge QR code",
+    "close": "Close"
   },
   "status": {
-    "decoding": "Decoding QR code…",
-    "analyzing": "Reading image…",
-    "failed": "Decoding failed",
-    "tip": "Make sure the image contains a clear QR code and try again."
-  },
-  "footer": {
-    "madeWith": "Client-side only · Open source",
-    "viewSource": "Source"
+    "failed": "Decoding failed"
   },
   "clipboard": {
     "copied": "Copied",
-    "failed": "Failed to copy"
+    "failed": "The browser blocked the copy. Select the text and copy it manually."
   },
   "errors": {
-    "noQrFound": "No QR code found in image",
-    "unsupportedFormat": "Unsupported QR code format",
-    "failedToProcess": "Failed to process file",
-    "noSecret": "Secret not found in URL",
-    "noData": "No data parameter in migration URL",
-    "failedToLoad": "Failed to load image",
-    "canvasNotAvailable": "Canvas context not available"
-  },
-  "language": {
-    "switch": "Switch language",
-    "english": "English",
-    "russian": "Русский"
+    "noQrFound": "No QR code found in the image. Upload a sharper image or crop it to the QR code.",
+    "unsupportedFormat": "This is not an authenticator QR code. It must contain an otpauth://totp/ or otpauth-migration:// URL.",
+    "noSecret": "The otpauth:// URL has no secret parameter. Copy the whole URL and paste it again.",
+    "invalidSecret": "The secret is not valid Base32. A secret contains only the letters A–Z and the digits 2–7: check it for 0, 1, 8 or 9.",
+    "noData": "The otpauth-migration:// URL has no data parameter. Copy the whole URL and paste it again.",
+    "failedToLoad": "The file cannot be opened as an image. Upload a PNG, JPG, GIF, BMP or WebP file.",
+    "canvasNotAvailable": "The browser did not provide a canvas, so the image cannot be read. Reload the page or open it in another browser.",
+    "unknown": "The contents could not be parsed ({{detail}}). Check that the image or URL is complete."
   }
 }

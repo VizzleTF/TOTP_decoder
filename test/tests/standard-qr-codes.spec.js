@@ -1,86 +1,72 @@
 const { test, expect } = require('@playwright/test');
 const path = require('path');
 
-test.describe('Standard QR Codes Period Extraction', () => {
-  const testCases = [
-    { file: 'test-qr-15s.png', expectedPeriod: 15, service: 'TestService3' },
-    { file: 'test-qr-30s.png', expectedPeriod: 30, service: 'TestService1' },
-    { file: 'test-qr-60s.png', expectedPeriod: 60, service: 'TestService2' },
-    { file: 'test-qr-120s.png', expectedPeriod: 120, service: 'TestService4' }
-  ];
+const fixtures = [
+  { file: 'test-qr-15s.png', issuer: 'TestService3', account: 'admin@company.com', period: 15, secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ' },
+  { file: 'test-qr-30s.png', issuer: 'TestService1', account: 'user@example.com', period: 30, secret: 'JBSWY3DPEHPK3PXP' },
+  { file: 'test-qr-60s.png', issuer: 'TestService2', account: 'user@test.com', period: 60, secret: 'HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ' },
+  { file: 'test-qr-120s.png', issuer: 'TestService4', account: 'dev@startup.io', period: 120, secret: 'MFRGG2LTMFZGK4TFOQ' },
+];
 
-  testCases.forEach(({ file, expectedPeriod, service }) => {
-    test(`should extract period ${expectedPeriod}s from ${file}`, async ({ page }) => {
-      // Переходим на главную страницу
-      await page.goto('/');
-      
-      // Ждем загрузки страницы
-      await expect(page.locator('h1')).toContainText('TOTP QR Decoder');
-      
-      // Находим input для загрузки файла
-      const fileInput = page.locator('input[type="file"]');
-      
-      // Загружаем QR-код
-      const filePath = path.join(__dirname, '..', file);
-      await fileInput.setInputFiles(filePath);
-      
-      // Ждем обработки файла
-      await page.waitForTimeout(2000);
-      
-      // Проверяем, что нет ошибок
-      const errorElement = page.locator('.text-red-500');
-      if (await errorElement.count() > 0) {
-        const errorText = await errorElement.textContent();
-        console.log(`Error found: ${errorText}`);
-      }
-      
-      // Ищем результаты
-      const resultsContainer = page.locator('.card').first();
-      await expect(resultsContainer).toBeVisible({ timeout: 10000 });
-      
-      // Проверяем, что есть хотя бы один аккаунт
-      const accountCards = page.locator('.card').filter({ hasText: 'TestService' });
-      await expect(accountCards.first()).toBeVisible();
-      
-      // Ищем информацию о периоде в первой карточке аккаунта
-      const firstCard = accountCards.first();
-      
-      // Проверяем наличие периода в тексте карточки
-      const cardText = await firstCard.textContent();
-      console.log(`Card content for ${file}:`, cardText);
-      
-      // Проверяем, что период отображается корректно
-      // Период может отображаться в разных местах, поэтому проверяем общий текст
-      expect(cardText).toContain(`${expectedPeriod}`);
-      
-      // Дополнительная проверка - ищем элементы с периодом
-      const periodElements = page.locator(`text=${expectedPeriod}`);
-      await expect(periodElements.first()).toBeVisible();
-      
-      console.log(`✅ Test passed for ${file}: period ${expectedPeriod}s extracted correctly`);
+const upload = (page, file) =>
+  page.locator('input[type="file"]').setInputFiles(path.join(__dirname, '..', file));
+
+// A synthetic event with a stubbed clipboardData works in all three engines
+const paste = async (page, text) => {
+  // The paste listener is registered when the app mounts, together with the file input
+  await page.locator('input[type="file"]').waitFor({ state: 'attached' });
+  await page.evaluate((value) => {
+    const event = new Event('paste', { bubbles: true });
+    Object.defineProperty(event, 'clipboardData', {
+      value: { items: [], getData: () => value },
     });
-  });
-  
-  test('should handle multiple QR codes sequentially', async ({ page }) => {
+    document.dispatchEvent(event);
+  }, text);
+};
+
+async function expectAccount(page, { issuer, account, period, secret }) {
+  await expect(page.getByTitle('Copy code')).toHaveText(/^\d{3} \d{3}$/);
+  await expect(page.getByText(issuer, { exact: true })).toBeVisible();
+  await expect(page.getByText(account, { exact: true })).toBeVisible();
+  await expect(page.getByTitle('Copy secret')).toContainText(secret);
+  await expect(page.getByTitle('Copy URL')).toContainText(`period=${period}`);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+}
+
+test.describe('otpauth:// QR codes', () => {
+  for (const fixture of fixtures) {
+    test(`${fixture.file} decodes with a ${fixture.period}s period`, async ({ page }) => {
+      await page.goto('/');
+      await upload(page, fixture.file);
+      await expectAccount(page, fixture);
+    });
+  }
+
+  test('a new upload replaces the previous result', async ({ page }) => {
     await page.goto('/');
-    
-    for (const { file, expectedPeriod } of testCases) {
-      console.log(`Testing ${file} with expected period ${expectedPeriod}s`);
-      
-      const fileInput = page.locator('input[type="file"]');
-      const filePath = path.join(__dirname, '..', file);
-      await fileInput.setInputFiles(filePath);
-      
-      await page.waitForTimeout(2000);
-      
-      // Ждем появления результатов
-      const resultsContainer = page.locator('.card').first();
-      await expect(resultsContainer).toBeVisible({ timeout: 10000 });
-      
-      const cardText = await page.locator('.card').nth(1).textContent();
-      expect(cardText).toContain(`${expectedPeriod}`);
-      
-      console.log(`✅ Sequential test passed for ${file}`);
+    for (const fixture of fixtures) {
+      await upload(page, fixture.file);
+      await expectAccount(page, fixture);
     }
+  });
+
+  test('a pasted otpauth:// URL decodes', async ({ page }) => {
+    await page.goto('/');
+    await paste(page, 'otpauth://totp/Pasted:me@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Pasted&period=60');
+    await expectAccount(page, { issuer: 'Pasted', account: 'me@example.com', period: 60, secret: 'JBSWY3DPEHPK3PXP' });
+  });
+
+  test('a secret that is not Base32 shows an error instead of a code', async ({ page }) => {
+    await page.goto('/');
+    await paste(page, 'otpauth://totp/Bad:me@example.com?secret=INVALID1890');
+    await expect(page.getByRole('alert')).toContainText('not valid Base32');
+    await expect(page.getByTitle('Copy code')).toHaveCount(0);
+  });
+
+  test('an image without a QR code shows an error', async ({ page }) => {
+    await page.goto('/');
+    await upload(page, '../web/public/logo192.png');
+    await expect(page.getByRole('alert')).toContainText('No QR code found in the image');
+    await expect(page.getByTitle('Copy code')).toHaveCount(0);
   });
 });

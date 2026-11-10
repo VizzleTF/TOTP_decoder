@@ -1,119 +1,50 @@
-# 🧪 Тестовые QR-коды для проверки периодов TOTP
+# Тестовые QR-коды
 
-Этот набор тестовых QR-кодов создан для проверки корректности извлечения периода TOTP из различных типов QR-кодов.
+Файлы в `test/` — QR-коды с известными параметрами для ручной и автоматической проверки декодера. Все секреты публичные: не подключайте их к настоящим аккаунтам.
 
-## 📁 Сгенерированные файлы
+## QR-коды `otpauth://`
 
-### 🔗 Обычные otpauth:// QR-коды
-Эти QR-коды содержат стандартные otpauth URL с явно указанным параметром `period`:
+У всех четырёх алгоритм SHA1 и 6 знаков.
 
-- **test-qr-15s.png** - TestService3, период 15 секунд
-- **test-qr-30s.png** - TestService1, период 30 секунд (стандартный)
-- **test-qr-60s.png** - TestService2, период 60 секунд
-- **test-qr-120s.png** - TestService4, период 120 секунд
+| Файл | Издатель | Аккаунт | Период, с | Секрет |
+|---|---|---|---|---|
+| `test-qr-15s.png` | TestService3 | admin@company.com | 15 | `GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ` |
+| `test-qr-30s.png` | TestService1 | user@example.com | 30 | `JBSWY3DPEHPK3PXP` |
+| `test-qr-60s.png` | TestService2 | user@test.com | 60 | `HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ` |
+| `test-qr-120s.png` | TestService4 | dev@startup.io | 120 | `MFRGG2LTMFZGK4TFOQ` |
 
-### 📱 Миграционный QR-код
-- **test-migration-qr.png** - Имитация Google Authenticator migration QR-кода
+## QR-код экспорта
 
-## 🧪 Инструкция по тестированию
+`test-migration-qr.png` содержит два аккаунта в формате `otpauth-migration://`. У обоих алгоритм SHA1 и 6 знаков. Период — 30 секунд: в protobuf-схеме экспорта нет поля периода, и декодер подставляет значение по умолчанию.
 
-### Шаг 1: Запуск приложения
-```bash
-npm run dev
-```
-Откройте http://localhost:3000/ в браузере
+| Издатель | Аккаунт | Секрет |
+|---|---|---|
+| TestMigration1 | user@example.com | `JBSWY3DPEHPK3PXP` |
+| TestMigration2 | admin@test.com | `HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ` |
 
-### Шаг 2: Тестирование обычных QR-кодов
-1. Перетащите файл `test-qr-15s.png` в область загрузки
-2. ✅ **Ожидаемый результат**: период должен быть 15 секунд
-3. Повторите для остальных файлов:
-   - `test-qr-30s.png` → период 30 секунд
-   - `test-qr-60s.png` → период 60 секунд  
-   - `test-qr-120s.png` → период 120 секунд
+## Ручная проверка
 
-### Шаг 3: Тестирование миграционного QR-кода
-1. Перетащите файл `test-migration-qr.png`
-2. ⚠️ **Ожидаемый результат**: все аккаунты будут иметь период 30 секунд
-3. Это нормальное поведение из-за ограничений протокола миграции
+1. Из корня репозитория запустите `npm install`, затем `npm run dev`.
+2. Откройте http://localhost:3000 и перетащите файл в область загрузки.
+3. Сравните издателя, аккаунт и секрет в карточке с таблицей. Период виден в параметре `period=` ссылки `otpauth://` и в обратном отсчёте.
 
-## 🔍 Детали тестовых данных
+## Автоматические тесты
 
-### Обычные TOTP аккаунты
-| Файл | Сервис | Аккаунт | Период | Secret |
-|------|--------|---------|--------|---------|
-| test-qr-15s.png | TestService3 | admin@company.com | 15с | GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ |
-| test-qr-30s.png | TestService1 | user@example.com | 30с | JBSWY3DPEHPK3PXP |
-| test-qr-60s.png | TestService2 | user@test.com | 60с | HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ |
-| test-qr-120s.png | TestService4 | dev@startup.io | 120с | MFRGG2LTMFZGK4TFOQ |
-
-### Миграционные аккаунты
-| Файл | Тип | Ожидаемый период | Примечание |
-|------|-----|------------------|------------|
-| test-migration-qr.png | Migration | 30с (всегда) | Ограничение протокола |
-
-## ⚙️ Техническая информация
-
-### Почему миграционные QR-коды всегда имеют период 30с?
-
-Протокол Google Authenticator migration использует protobuf схему, которая **не включает поле `period`**:
-
-```protobuf
-message OtpParameters {
-  bytes secret = 1;
-  string name = 2;
-  string issuer = 3;
-  Algorithm algorithm = 4;
-  DigitCount digits = 5;
-  OtpType type = 6;
-  int64 counter = 7;
-  // ❌ Поля period НЕТ!
-}
-```
-
-Поэтому наше приложение:
-1. ✅ Корректно извлекает период из обычных `otpauth://` URL
-2. ⚠️ Использует период по умолчанию (30с) для миграционных QR-кодов
-3. 🔧 Реализует улучшенную логику с попыткой извлечения периода
-
-### Улучшения в коде
-
-В методе `parseMigrationUrl` добавлена логика:
-```typescript
-// Попытка извлечь период из сгенерированного otpauth URL
-try {
-  const parsedAccount = this.parseOtpauthUrl(otpauthUrl);
-  period = parsedAccount.period || 30;
-} catch (error) {
-  console.warn('Failed to extract period, using default 30:', error);
-  period = 30;
-}
-```
-
-## 🎯 Ожидаемые результаты тестирования
-
-### ✅ Успешные случаи
-- Обычные QR-коды: период извлекается корректно из URL
-- Миграционные QR-коды: используется период по умолчанию 30с
-- Приложение не падает при обработке любого типа QR-кода
-- Коды TOTP генерируются корректно для всех периодов
-
-### ❌ Возможные проблемы
-- Если период не отображается корректно для обычных QR-кодов
-- Если приложение падает при загрузке миграционного QR-кода
-- Если TOTP коды не обновляются с правильной частотой
-
-## 🚀 Генерация новых тестовых QR-кодов
-
-Для создания новых тестовых QR-кодов:
+Тесты Playwright загружают каждый файл и сверяют карточки с таблицами выше. Сервер разработки они запускают сами.
 
 ```bash
-# Обычные QR-коды с разными периодами
-node generate-test-qr.js
-
-# Миграционный QR-код
-node generate-migration-qr.js
+cd test
+npm install
+npx playwright install   # один раз: скачивает Chromium, Firefox и WebKit
+npm test
 ```
 
----
+## Генерация файлов
 
-**Примечание**: Все тестовые секреты являются публичными и предназначены только для тестирования. Не используйте их в продакшене!
+Скрипты перезаписывают PNG-файлы в `test/`:
+
+```bash
+cd test
+node generate-test-qr.js        # test-qr-15s.png, -30s, -60s, -120s
+node generate-migration-qr.js   # test-migration-qr.png
+```
